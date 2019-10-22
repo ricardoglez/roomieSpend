@@ -1,5 +1,5 @@
 import firebaseUtils from './firebaseUtils';
-
+import firebase from 'firebase';
 const API = {
     fetchPurchases: () => {
         console.log('Fetch purchases');
@@ -19,6 +19,10 @@ const API = {
                 rej({success: false, error:error, data:null})
             }
         } );    
+    },
+    signIn:( data ) => {
+        console.log('SignIn this', data);
+        return firebase.auth().createUserWithEmailAndPassword(data.email, data.password)
     },
     addSpent: async () => {
         console.log('Add Spent');
