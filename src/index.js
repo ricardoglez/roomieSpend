@@ -1,12 +1,11 @@
+'use strict'
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-const App = ( ) => {
-    return <div>The App</div>
-}
+import "regenerator-runtime/runtime";
+import App from './components/App';
+import './assets/defaultStyles.scss';
+require('firebase/firestore');
 
 const wrapper = document.getElementById('app');
 
 ReactDOM.render(<App/>, wrapper);
-
-export default App;
