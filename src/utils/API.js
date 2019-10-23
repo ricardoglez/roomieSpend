@@ -52,6 +52,10 @@ const API = {
         console.log('SignIn this', data);
         return firebase.auth().createUserWithEmailAndPassword(data.email, data.password)
     },
+    logIn:( data ) => {
+        console.log('LogIn this', data);
+        return firebase.auth().signInWithEmailAndPassword(data.email, data.password)
+    },
     addSpent: async () => {
         console.log('Add Spent');
     },
