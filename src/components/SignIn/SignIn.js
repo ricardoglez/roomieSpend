@@ -16,6 +16,7 @@ import {
 } from '@material-ui/core';
 import Joi from '@hapi/joi';
 import API from '../../utils/API';
+import { emailError, passwordError } from '../../utils/common';  
 
 const useStyles = makeStyles(theme => { 
     return {
@@ -45,30 +46,32 @@ const useStyles = makeStyles(theme => {
 }
 });
 
-const emailError = 'Ingresa un email válido'; 
-const passwordError = 'La contraseña debe de tener al menos 6 caracteres (Solamente números y letras)'; 
-
 const SignIn = () => {
     let [email, handleEmail] = useState(null);
     let [isEmailCorrect, handleEmailValidation] = useState(true);
     let [emailErrorMessage, handleEmailErrorMessage] = useState(emailError);
     let [password, handlePassword] = useState(null);
-    let [isPasswordCorrect, handlePasswordValidation] = useState(true);
+    let [isPasswordCorrect, handlePasswordValidation] = useState(false);
     let [passwordErrorMessage, handlePasswordErrorMessage] = useState(passwordError);
     let [isReadyToSubmit, handleIsReady] = useState(false) 
+    let [isSubmitting , handleSubmitting] = useState(false);
 
     const signInUser = () => {
         handleEmailErrorMessage(emailError);
+        handleSubmitting(true);
+
         const signInObj = {
             email, password
         };
 
         API.signIn(signInObj)
         .then( response => {
+            handleSubmitting(false);
             console.log(response);
         })
         .catch(error => {
             console.error('Error While SingIn');
+            handleSubmitting(false);
             mapError(error);
         })
     };
@@ -147,7 +150,7 @@ const SignIn = () => {
                         <FormControl>
                             <TextField
                                 id="email"
-                                error={ !isEmailCorrect }
+                                error={ email != null && !isEmailCorrect }
                                 name="email"
                                 label="Correo electrónico"
                                 defaultValue=""
@@ -157,7 +160,7 @@ const SignIn = () => {
                                 onChange={( e ) => { handleEmail(e.target.value) } }
                             />
                             {
-                                isEmailCorrect ? null :
+                                email  === null|| isEmailCorrect ? null :
                                 <FormHelperText error > { emailErrorMessage } </FormHelperText>
                             }
                         </FormControl>
@@ -165,7 +168,7 @@ const SignIn = () => {
                             <TextField
                                 type='password'
                                 id="password"
-                                error={ !isPasswordCorrect }
+                                error={ password != null && !isPasswordCorrect }
                                 name="password"
                                 label="Contraseña"
                                 defaultValue=""
@@ -175,14 +178,14 @@ const SignIn = () => {
                                 onChange={( e ) => { handlePassword(e.target.value) } } 
                             />
                              {
-                                isPasswordCorrect ? null :
-                                <FormHelperText error > Tu contraseña debe de tener al menos 6 caracteres </FormHelperText>
+                               password === null || isPasswordCorrect ? null :
+                                <FormHelperText error > {passwordErrorMessage} </FormHelperText>
                             }
                         </FormControl>
                     </FormGroup>
                     <Button 
                         variant="contained" 
-                        disabled={ !isReadyToSubmit } 
+                        disabled={ !isReadyToSubmit || isSubmitting } 
                         component="span"
                         className={classes.button}
                         onClick={signInUser}
