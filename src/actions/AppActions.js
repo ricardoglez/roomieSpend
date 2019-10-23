@@ -1,4 +1,12 @@
 const AppActions = {
+    updateUserData: ( dispatch, userData ) => {
+        console.log('Update userData', userData);
+        dispatch( {type:'updateUserData', payload: { userData: userData } } );
+    },
+    updateAuthState: ( dispatch, isAuth ) => {
+        console.log('Update AuthState', isAuth);
+        dispatch( {type:'updateAuthState', payload: { isAuth: isAuth } } );
+    },
     updateSpendingList: ( dispatch, spendingList ) => {
         console.log('Update Spending List', spendingList);
         dispatch( {type:'updateSpendingList', payload: { spendingList: spendingList } } );

@@ -12,6 +12,10 @@ const AppReducer = ( action ) => {
             return {...state, isMounted: action.payload.status }
         case 'updateSpendingsList':
             return { ...state, spendingList: action.payload.updateSpendingsList }
+        case 'updateUserData':
+                return { ...state, userData: action.payload.userData }
+        case 'updateAuthState':
+                return { ...state, isAuth: action.payload.isAuth }
         default: 
             return { ...state }
     }

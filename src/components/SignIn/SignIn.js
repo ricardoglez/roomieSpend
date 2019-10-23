@@ -14,11 +14,10 @@ import {
     Typography,
     Button
 } from '@material-ui/core';
-
+import Joi from '@hapi/joi';
 import API from '../../utils/API';
 
 const useStyles = makeStyles(theme => { 
-    console.log(theme)
     return {
     root:{
         flexGrow: 1
@@ -46,17 +45,20 @@ const useStyles = makeStyles(theme => {
 }
 });
 
+const emailError = 'Ingresa un email válido'; 
+const passwordError = 'La contraseña debe de tener al menos 6 caracteres (Solamente números y letras)'; 
+
 const SignIn = () => {
-    let [username, handleUsername] = useState('');
-    let [email, handleEmail] = useState('');
-    let [isEmailCorrect, handleEmailError] = useState(true);
-    let [password, handlePassword] = useState('');
-    let [isPasswordCorrect, handlePasswordError] = useState(true);
-    let [passwordConfirmation, handlePasswordConfirmation] = useState('');
+    let [email, handleEmail] = useState(null);
+    let [isEmailCorrect, handleEmailValidation] = useState(true);
+    let [emailErrorMessage, handleEmailErrorMessage] = useState(emailError);
+    let [password, handlePassword] = useState(null);
+    let [isPasswordCorrect, handlePasswordValidation] = useState(true);
+    let [passwordErrorMessage, handlePasswordErrorMessage] = useState(passwordError);
     let [isReadyToSubmit, handleIsReady] = useState(false) 
-    let [error, handleError] = useState(null);
 
     const signInUser = () => {
+        handleEmailErrorMessage(emailError);
         const signInObj = {
             email, password
         };
@@ -67,33 +69,65 @@ const SignIn = () => {
         })
         .catch(error => {
             console.error('Error While SingIn');
-            console.error(error);
             mapError(error);
         })
     };
 
     const mapError = ( error )=> {
-        
+        console.log(error.code);
         switch( error.code ){
             case 'auth/email-already-in-use':
+                handleEmailValidation(false);
+                handleEmailErrorMessage(error.message);
                 break;
             case 'auth/invalid-email':
+                handleEmailValidation(false);
+                handleEmailErrorMessage(error.message);
                 break;
             case 'auth/operation-not-allowed':
                 break;
             case 'auth/weak-password':
+                handlePasswordValidation(false);
+                handlePasswordErrorMessage(error.message);
                 break;
         }
     }
 
+    //Effect to validate email
+    useEffect(() => {
+        if( email === null ){ return}
+        let emailSchema = Joi.string().email().required();
+        let validEmail = emailSchema.validate(email);
+        if( validEmail.hasOwnProperty('error') ){
+            handleEmailValidation(false);
+            handleEmailErrorMessage(emailError);
+        }
+        else {
+            handleEmailValidation(true);
+        }
+    }, [email]);
+    //Effect to validate password
+    useEffect(() => {
+        if(password === null){ return }
+        let passwordSchema = Joi.string().alphanum().min(6).required();
+        let validPass = passwordSchema.validate(password);
+        if(validPass.hasOwnProperty('error') ){
+            handlePasswordValidation(false);
+            handlePasswordErrorMessage(passwordError);
+        }
+        else {
+            handlePasswordValidation(true);
+        }
+    }, [password]);
+
     useEffect( () => {
-        if( password && email && isPasswordCorrect && isEmailCorrect ){
+        if( isPasswordCorrect && isEmailCorrect ){
             handleIsReady(true);
         }
         else {
             handleIsReady(false);
         }
-    } ,[ email, password])
+    } ,[ isPasswordCorrect, isEmailCorrect])
 
     const classes = useStyles();
     return (
@@ -122,6 +156,10 @@ const SignIn = () => {
                                 variant="outlined"
                                 onChange={( e ) => { handleEmail(e.target.value) } }
                             />
+                            {
+                                isEmailCorrect ? null :
+                                <FormHelperText error > { emailErrorMessage } </FormHelperText>
+                            }
                         </FormControl>
                         <FormControl>
                             <TextField
@@ -136,6 +174,10 @@ const SignIn = () => {
                                 variant="outlined"
                                 onChange={( e ) => { handlePassword(e.target.value) } } 
                             />
+                             {
+                                isPasswordCorrect ? null :
+                                <FormHelperText error > Tu contraseña debe de tener al menos 6 caracteres </FormHelperText>
+                            }
                         </FormControl>
                     </FormGroup>
                     <Button 

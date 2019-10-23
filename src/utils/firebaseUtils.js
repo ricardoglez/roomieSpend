@@ -1,7 +1,6 @@
 
 import firebase from 'firebase/app';
 import 'firebase/firestore';
-console.log('...:::Initialize firestore:::...');
 
 const config = {
     apiKey: FIREBASE_API_KEY,
@@ -12,7 +11,6 @@ const config = {
     messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
     appId: FIREBASE_APP_ID
 };
-console.log(config);
 
 firebase.initializeApp(config);
 

@@ -1,8 +1,36 @@
 import firebaseUtils from './firebaseUtils';
 import firebase from 'firebase';
 const API = {
+    getUserData: () => {
+        console.log('Get user Data');
+        return new Promise( (res, rej) => {
+            try{
+                firebase.auth()
+                .onAuthStateChanged( (user) =>{
+                    if( user ){
+                        const userFormatted = {
+                            userId: user.uid,
+                            name: user.displayName,
+                            lastLogin: user.metadata.lastSignInTime,
+                            refreshToken: user.refreshToken,
+                        }
+                        res( { success: true , data:userFormatted });
+                    }
+                    else {
+                        console.error('thisUSer isnt auth', user);
+                        rej( { success: false , error:{ message: 'User isnt auth'} });
+                    }
+                } )
+                
+            }
+            catch(error){
+                console.error(error);
+                rej( { success: false ,error:error })
+            }
+        } )
+    },
     fetchPurchases: () => {
-        console.log('Fetch purchases');
+        console.log('Fetch purchases...');
         return new Promise( (res, rej) => {
             try{
                 let purchases = [];
