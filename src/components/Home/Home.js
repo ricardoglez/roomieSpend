@@ -4,10 +4,7 @@ import Login from '../Login';
 
 const Home = (  ) => {
     const [ state, dispatch ] = useContext(AppContext);
-    console.log(state, dispatch)
-    useEffect(() => {
-        console.log('Just One');
-    }, [])
-    return <Login/>      
+    
+    return <div>Home</div>      
 }
 export default Home;
