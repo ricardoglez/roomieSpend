@@ -21,6 +21,12 @@ const AppActions = {
     },updateMounted: ( dispatch, status) => {
         console.log('App is Mounted');
         dispatch( {type: 'updateMounted', payload:{ status } } );
+    },
+    redirectTo: (dispatch, redirect, pathToRedirect) => {
+        console.log('Redirect To', pathToRedirect, redirect);
+        setTimeout( () => {
+            dispatch({ type:'redirectTo', payload:{ pathToRedirect:pathToRedirect, redirect:redirect } });
+        } , 500);
     }
 };
 
