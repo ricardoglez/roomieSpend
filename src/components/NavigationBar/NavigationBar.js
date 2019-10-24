@@ -3,17 +3,49 @@ import { Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, BottomNavigationAction, BottomNavigation } from '@material-ui/core';
 import { AppContext } from '../../context/AppContext';
+import AppActions from '../../actions/AppActions';
+import API from '../../utils/API';
 
 const useStyles= makeStyles({ 
     root: { flexGrow: 1},
 });
 
 const NavigationBar = () => {
-    const [state, dispatch] = useContext(AppContext)
+    const [state, dispatch] = useContext(AppContext);
     const classes = useStyles();
     const [ value, setValue ] = useState(0);
 
-    if( !state.isAuth ){
+    const logout = () => {
+        API.logOut()
+        .then( response => {
+            console.log(response);
+           AppActions.updateAuthState(dispatch , false);
+           AppActions.updateUserData(dispatch , null);
+           AppActions.redirectTo(dispatch, true , '/');
+        } )
+        .catch( error => {
+            console.error(error);
+        } );
+    }
+
+
+    if( !state.isMounted){
+        return (
+            <BottomNavigation
+                value={value}
+                onChange={(event, newValue) => {
+                    setValue(newValue);
+                }}
+                showLabels
+                className={classes.root}
+                >
+                    <BottomNavigationAction
+                        label="Espera un momento"
+                    />
+            </BottomNavigation>
+        )
+    }
+    else if( !state.isAuth ){
         return (
             <BottomNavigation
                 value={value}
@@ -26,7 +58,7 @@ const NavigationBar = () => {
                     <BottomNavigationAction
                         component={Link}
                         to='/'
-                        label="Home"
+                        label="Inicio"
                     />
                     <BottomNavigationAction
                         component={Link}
@@ -54,22 +86,16 @@ const NavigationBar = () => {
                 <BottomNavigationAction
                     component={Link}
                     to='/'
-                    label="Home"
+                    label="Inicio"
                 />
                 <BottomNavigationAction
                     component={Link}
                     to='/viewExpenses'
-                    label="View"
+                    label="Lista de gastos"
                 />
                 <BottomNavigationAction
-                    component={Link}
-                    to='/addExpense'
-                    label="Add"
-                />
-                <BottomNavigationAction
-                    component={Link}
-                    to='/removeExpense'
-                    label="Remove"
+                    onClick={ logout }
+                    label="Cerrar sesión"
                 />
                 
         </BottomNavigation>
