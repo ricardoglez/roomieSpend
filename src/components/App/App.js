@@ -15,11 +15,8 @@ import Home from '../Home';
 import Login from '../Login';
 import SignIn from '../SignIn';
 import PrivateRoute from '../PrivateRoute';
+import ViewExpenses from '../ViewExpenses';
 
-const ViewExpenses = () => {
-    console.log('View Expenses');
-    return <div>View Expenses</div>
-}
 
 const App = () => {
     return (
