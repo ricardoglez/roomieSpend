@@ -1,4 +1,8 @@
 const AppActions = {
+    updateMounted: (dispatch, status) => {
+        console.log('Update mounted', userData);
+        dispatch( {type:'updateMounted', payload: { status: status } } );
+    },
     updateUserData: ( dispatch, userData ) => {
         console.log('Update userData', userData);
         dispatch( {type:'updateUserData', payload: { userData: userData } } );
@@ -26,7 +30,7 @@ const AppActions = {
         console.log('Redirect To', pathToRedirect, redirect);
         setTimeout( () => {
             dispatch({ type:'redirectTo', payload:{ pathToRedirect:pathToRedirect, redirect:redirect } });
-        } , 500);
+        } , 300);
     }
 };
 
