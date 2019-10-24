@@ -9,15 +9,15 @@ const API = {
                 .onAuthStateChanged( (user) =>{
                     if( user ){
                         const userFormatted = {
-                            userId: user.uid,
-                            name: user.displayName,
+                            uid: user.uid,
+                            displayName: user.displayName,
                             lastLogin: user.metadata.lastSignInTime,
                             refreshToken: user.refreshToken,
                         }
                         res( { success: true , data:userFormatted });
                     }
                     else {
-                        console.error('thisUSer isnt auth', user);
+                        console.error('this Uer isnt auth', user);
                         rej( { success: false , error:{ message: 'User isnt auth'} });
                     }
                 } )
@@ -55,6 +55,10 @@ const API = {
     logIn:( data ) => {
         console.log('LogIn this', data);
         return firebase.auth().signInWithEmailAndPassword(data.email, data.password)
+    },
+    logOut:( ) => {
+        console.log('LogOut this');
+        return firebase.auth().signOut()
     },
     addSpent: async () => {
         console.log('Add Spent');
