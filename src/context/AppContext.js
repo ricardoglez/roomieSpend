@@ -2,14 +2,13 @@ import React, {
     useReducer, 
     createContext, 
     useEffect,
-    useState,
     useContext 
 } from 'react';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Redirect } from 'react-router-dom';
 import NavigationBar from '../components/NavigationBar';
 import AppReducers from '../reducers/AppReducers';
-import { Container } from '@material-ui/core';
+import { Container , Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import AppActions from '../actions/AppActions';
 import API from '../utils/API';
@@ -76,7 +75,7 @@ const AppBody = ({ children }) => {
         return <Redirect push to={{ pathname: state.pathToRedirect }}/>
     } 
     else if( state.isMounted && !state.isSubmitting ) {
-        return (children)
+        return ( <Grid container justify='center' alignItems='center'>{children}</Grid>)
     }
     else {
         return (<LinearProgress color="secondary" variant="query" />)
