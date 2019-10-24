@@ -95,6 +95,8 @@ const Login = () => {
                 handleEmailErrorMessage(error.message);
                 break;
             case 'auth/user-not-found':
+                handleEmailValidation(false);
+                handleEmailErrorMessage(error.message);    
                 break;
             case 'auth/wrong-password':
                 handlePasswordValidation(false);
