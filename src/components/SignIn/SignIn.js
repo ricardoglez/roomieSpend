@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import * as  firebaseui from 'firebaseui';
 import { makeStyles } from '@material-ui/core/styles';
 import {Link} from 'react-router-dom';
@@ -17,7 +17,9 @@ import {
 import Joi from '@hapi/joi';
 import API from '../../utils/API';
 import { emailError, passwordError } from '../../utils/common';  
-
+import { userModel } from '../../utils/common';
+import AppActions from '../../actions/AppActions';
+import {AppContext} from '../../context/AppContext';
 const useStyles = makeStyles(theme => { 
     return {
     root:{
@@ -47,6 +49,7 @@ const useStyles = makeStyles(theme => {
 });
 
 const SignIn = () => {
+    let [state, dispatch]  =useContext(AppContext);
     let [email, handleEmail] = useState(null);
     let [isEmailCorrect, handleEmailValidation] = useState(true);
     let [emailErrorMessage, handleEmailErrorMessage] = useState(emailError);
@@ -59,7 +62,6 @@ const SignIn = () => {
     const signInUser = () => {
         handleEmailErrorMessage(emailError);
         handleSubmitting(true);
-
         const signInObj = {
             email, password
         };
@@ -68,9 +70,14 @@ const SignIn = () => {
         .then( response => {
             handleSubmitting(false);
             console.log(response);
+            const userObj = new userModel( response.user.uid, response.user.displayName, response.user.metadata.lastSignInTime, response.user.refreshToken );
+            AppActions.updateUserData(dispatch, userObj);
+            AppActions.updateAuthState(dispatch, true);
+            AppActions.redirectTo(dispatch, true, '/viewExpenses');
         })
         .catch(error => {
             console.error('Error While SingIn');
+            console.error(error);
             handleSubmitting(false);
             mapError(error);
         })
