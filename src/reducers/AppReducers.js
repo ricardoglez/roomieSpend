@@ -1,5 +1,7 @@
 const AppReducer = ( state, action ) => {
     switch( action.type ){
+        case 'handleModal':
+            return {...state, showModal: action.payload.status, modalContent: action.payload.modalContent }
         case 'updateMounted':
             return {...state, isMounted: action.payload.status }
         case 'updateSpendingsList':
