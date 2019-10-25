@@ -4,6 +4,8 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import AddSpendForm from './AddSpendForm';
 
+import API from '../../utils/API';
+
 const useStyles = makeStyles(theme => ({
     modal: {
       display: 'flex',
@@ -37,7 +39,8 @@ const AddSpendContent = ( ) => {
 
     return (
         <Paper className={classes.paper}>
-            <Typography variant='h5' gutterBottom >Agregar gastos</Typography>
+            <Typography variant='h5' gutterBottom >Agregar compra</Typography>
+            <Typography variant='subtitle2' gutterBottom >Ingresa la información de la compra </Typography>
             <AddSpendForm/>
         </Paper>
     )
