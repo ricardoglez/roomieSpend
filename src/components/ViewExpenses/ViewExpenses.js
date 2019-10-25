@@ -6,7 +6,6 @@ import AppActions from '../../actions/AppActions';
 import AddSpendContent from '../AddSpendContent';
 
 const useStyles = makeStyles(theme => {
-    console.log(theme);
     return {
         root: {
             width: '100%',
@@ -49,7 +48,7 @@ const ViewExpenses = () => {
             justify="center"
             alignItems="center" >
                 <Fab variant="extended" aria-label="add" className={classes.fab} onClick={ handleAddSpend }>
-                    Agregar gasto
+                    Agregar compra
                 </Fab>
             </Grid>
             <List className={classes.root}>
