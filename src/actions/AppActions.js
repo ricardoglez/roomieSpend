@@ -1,4 +1,8 @@
 const AppActions = {
+    handleModal: (dispatch , status, modalContent) => {
+        console.log('Update Modal', status, modalContent);
+        dispatch( {type:'handleModal', payload: { status: status, modalContent: modalContent } } );
+    },
     updateMounted: (dispatch, status) => {
         console.log('Update mounted', userData);
         dispatch( {type:'updateMounted', payload: { status: status } } );
