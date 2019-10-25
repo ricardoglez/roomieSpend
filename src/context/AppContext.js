@@ -4,12 +4,17 @@ import React, {
     useEffect,
     useContext 
 } from 'react';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import { Redirect } from 'react-router-dom';
-import NavigationBar from '../components/NavigationBar';
-import AppReducers from '../reducers/AppReducers';
-import { Container , Grid } from '@material-ui/core';
+import { 
+    Container, 
+    Grid, 
+    LinearProgress, 
+    AppBar 
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import NavigationBar from '../components/NavigationBar';
+import TransitionModal from '../components/TransitionModal';
+import AppReducers from '../reducers/AppReducers';
 import AppActions from '../actions/AppActions';
 import API from '../utils/API';
 import { userModel } from '../utils/common';
@@ -17,6 +22,7 @@ import { userModel } from '../utils/common';
 
 const initialState = {
     isMounted   : false,
+    showModal   : false,
     isSubmitting: false,
     isAuth      : false,
     fingerprint : null,
@@ -28,7 +34,18 @@ const initialState = {
 const useStyles = makeStyles( theme => ({
     root: {
       flexGrow: 1,
-    }
+    },
+    modal: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      paper: {
+        backgroundColor: theme.palette.background.paper,
+        border: '2px solid #000',
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(2, 4, 3),
+      },
 }));
 
 const AppContext =  createContext( initialState );
@@ -39,7 +56,7 @@ const AppContextProvider = ({ children }) => {
     return (
         <AppContext.Provider value={ [state, dispatch] } >
             <div className={ classes.root }>
-                <NavigationBar/>
+                <AppBar position='static'> BAR </AppBar>
                 <Container maxWidth='md'>
                     <AppBody>
                     { children }
@@ -50,7 +67,7 @@ const AppContextProvider = ({ children }) => {
     )
 }
 
-const AppBody = ({ children }) => {
+const AppBody = ({ children, ...options }) => {
     let [state , dispatch] = useContext(AppContext);
     
     useEffect( () => {
@@ -67,18 +84,24 @@ const AppBody = ({ children }) => {
             console.error(error);
             AppActions.updateMounted(dispatch, true);
         })
-    },[])
+    },[]);
 
     if(state.redirect && state.pathToRedirect){
         console.log(state.redirect, state.pathToRedirect);
         AppActions.redirectTo( dispatch, false ,null);
         return <Redirect push to={{ pathname: state.pathToRedirect }}/>
-    } 
-    else if( state.isMounted && !state.isSubmitting ) {
-        return ( <Grid container justify='center' alignItems='center'>{children}</Grid>)
-    }
-    else {
-        return (<LinearProgress color="secondary" variant="query" />)
+    } else {
+        return ( 
+            <Grid container justify='center' alignItems='center'>
+                <TransitionModal content={ state.modalContent } />
+                { !state.isMounted || state.isSubmitting 
+                ? 
+                <LinearProgress color="secondary" variant="query" />
+                : 
+                children
+                }
+            </Grid>
+        )
     }
 }
 export { AppContext, AppContextProvider };
