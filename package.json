@@ -30,6 +30,7 @@
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-router-dom": "^5.1.2",
+    "react-spring": "^8.0.27",
     "regenerator-runtime": "^0.13.3",
     "sass-loader": "^8.0.0",
     "style-loader": "^1.0.0",
