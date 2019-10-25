@@ -9,7 +9,8 @@ import {
     Container, 
     Grid, 
     LinearProgress, 
-    AppBar 
+    AppBar, 
+    Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import NavigationBar from '../components/NavigationBar';
@@ -46,6 +47,13 @@ const useStyles = makeStyles( theme => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),
       },
+      appBar: {
+        marginBottom: theme.spacing(2),
+        textAlign: 'center'
+      },
+      mainHeader:{
+          padding:theme.spacing(1)
+      }
 }));
 
 const AppContext =  createContext( initialState );
@@ -56,7 +64,9 @@ const AppContextProvider = ({ children }) => {
     return (
         <AppContext.Provider value={ [state, dispatch] } >
             <div className={ classes.root }>
-                <AppBar position='static'> BAR </AppBar>
+                <AppBar position='static' className={classes.appBar}> 
+                    <Typography className={classes.mainHeader}>Roomies Expenses</Typography> 
+                </AppBar>
                 <Container maxWidth='md'>
                     <AppBody>
                     { children }
@@ -71,10 +81,8 @@ const AppBody = ({ children, ...options }) => {
     let [state , dispatch] = useContext(AppContext);
     
     useEffect( () => {
-        console.log('User State');
         API.getUserData()
         .then( response => {
-            console.log(response);
             const userObj = new userModel( response.data.uid, response.data.displayName, response.data.lastLogin, response.data.refreshToken );
             AppActions.updateUserData(dispatch, userObj);
             AppActions.updateAuthState(dispatch, true);
