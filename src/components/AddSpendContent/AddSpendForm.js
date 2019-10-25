@@ -62,16 +62,13 @@ const AddSpendForm = () => {
             /> 
             <Select
                 value={values.users_involved}
+                placeholder='¿Quien participó?'
                 onChange={handleChange('users_involved')}
-                inputProps={{
-                    name: 'age',
-                    id: 'age-simple',
-                }}
-                >
+            >
                 <MenuItem value={10}>Ten</MenuItem>
                 <MenuItem value={20}>Twenty</MenuItem>
                 <MenuItem value={30}>Thirty</MenuItem>
-                </Select>
+            </Select>
         </form>
     )
 };
