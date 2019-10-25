@@ -7,7 +7,12 @@ import AppActions from '../../actions/AppActions';
 import API from '../../utils/API';
 
 const useStyles= makeStyles({ 
-    root: { flexGrow: 1},
+    root: { 
+        flexGrow: 1,
+        width: '100%',
+        position: 'fixed',
+        bottom: 0,
+    },
 });
 
 const NavigationBar = () => {
