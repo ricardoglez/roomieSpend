@@ -40,7 +40,7 @@ const AddSpendContent = ( ) => {
     return (
         <Paper className={classes.paper}>
             <Typography variant='h5' gutterBottom >Agregar compra</Typography>
-            <Typography variant='subtitle2' gutterBottom >Ingresa la información de la compra </Typography>
+            <Typography variant='subtitle2' gutterBottom >Ingresa la información referente a la compra</Typography>
             <AddSpendForm/>
         </Paper>
     )
