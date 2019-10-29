@@ -1,6 +1,22 @@
-import firebaseUtils from './firebaseUtils';
+import {firestore, firestoreDB } from './firebaseUtils';
 import firebase from 'firebase';
 const API = {
+    checkUsernameAvailability: async ( username ) => {
+        console.log('is Username Available...');
+        return new Promise( (res, rej) => {
+            try{
+                const query = firestore.collection('users').where('name','==', username);
+                query.get()
+                .then( querySnapshot => {
+                    res({ success:true , isAvailable: querySnapshot.docs.length === 0 });
+                })
+            }
+            catch(error){
+                console.error(error);
+                rej({success: false, error:error, data:null})
+            }
+        } );    
+    },
     getUserData: () => {
         console.log('Get user Data');
         return new Promise( (res, rej) => {
@@ -34,7 +50,7 @@ const API = {
         return new Promise( (res, rej) => {
             try{
                 let purchases = [];
-                firebaseUtils.collection('purchase')
+                firestore.collection('purchase')
                     .onSnapshot( ( snapshot) => {
                     snapshot.forEach( doc => { 
                         purchases.push( doc.data());
