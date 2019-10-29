@@ -51,6 +51,9 @@ const useStyles = makeStyles( theme => ({
         marginBottom: theme.spacing(2),
         textAlign: 'center'
       },
+      userInfo:{
+          float:'right'
+      },
       mainHeader:{
           padding:theme.spacing(1)
       }
@@ -65,7 +68,12 @@ const AppContextProvider = ({ children }) => {
         <AppContext.Provider value={ [state, dispatch] } >
             <div className={ classes.root }>
                 <AppBar position='static' className={classes.appBar}> 
-                    <Typography className={classes.mainHeader}>Roomies Expenses</Typography> 
+                    <Grid container alignItems='center' justify='center' >
+                            <Typography 
+                                className={classes.mainHeader}>
+                                Roomies Expenses 
+                            </Typography>
+                    </Grid>
                 </AppBar>
                 <Container maxWidth='md'>
                     <AppBody>
