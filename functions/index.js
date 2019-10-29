@@ -5,10 +5,23 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
-exports.addToUsersCollection = functions.auth.user().onCreate((user) => {  
-    console.log('Add to UsersCollection', user);
-    const uid = user.uid;
-    let newUser ={ debt:0, name:'someName', userId: uid, assignedPurchases: {} };
-    db.collection('users').doc(uid).set(newUser);
-});
+// exports.addToUsersCollection = functions.auth.user().onCreate((user,context) => {  
+//     console.log('Add to UsersCollection', user);
+//     console.log('Context ', context);
+//     const uid = user.uid;
+//     let newUser ={ debt:0, displayName:user.displayName, userId: uid, assignedPurchases: {} };
+//     db.collection('users').doc(uid).set(newUser);
+// });
+// exports.modifyUserData = functions.firestore.document('users/{userId}').onUpdate((change, context) => {  
+//     console.log('Modify UsersData');
+//     console.log('Context', context);
+//     const uid = params.userId;
+//     const newValue = change.after.data();
+//     const previousValue = change.before.data();
+//     console.log('New Val', newValue);
+//     console.log('PRevious Val', previousValue);
+//     let newUser ={ debt:0, displayName:user.displayName, userId: uid, assignedPurchases: {} };
+//     console.log('New User', newUser);
+//     db.collection('users').doc(userId).set(newUser);
+// });
 
