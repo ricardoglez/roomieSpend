@@ -72,6 +72,7 @@ const AppContextProvider = ({ children }) => {
                     { children }
                     </AppBody>
                 </Container>
+                <NavigationBar/>
             </div>
         </AppContext.Provider>
     )
