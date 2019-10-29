@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import {
-    BrowserRouter as Router,
+    Router,
     Switch,
     Route,
     Link
@@ -21,20 +21,20 @@ import ViewExpenses from '../ViewExpenses';
 const App = () => {
     return (
         <Router history={ history } basename='/'>
-                <Switch>
-                    <AppContextProvider>
-                        <Route path='/ingresar' component={Login} exact/>
-                        <Route path='/crear_cuenta' component={SignIn} exact/>
-                        <PrivateRoute path='/viewExpenses' exact component={ ViewExpenses }/>
-                        <PrivateRoute path='/' component={Home} exact/>
-                        <PrivateRoute path='/addExpense' exact>
-                            <div>Add Expense</div>
-                        </PrivateRoute>
-                        <PrivateRoute path='/removeExpense' exact>
-                            <div>Remove Expense</div>
-                        </PrivateRoute>
-                    </AppContextProvider>
-                </Switch>
+            <Switch>
+                <AppContextProvider>
+                    <Route path='/ingresar' component={Login} exact/>
+                    <Route path='/crear_cuenta' component={SignIn} exact/>
+                    <PrivateRoute path='/viewExpenses' exact component={ ViewExpenses }/>
+                    <PrivateRoute path='/' component={Home} exact/>
+                    <PrivateRoute path='/addExpense' exact>
+                        <div>Add Expense</div>
+                    </PrivateRoute>
+                    <PrivateRoute path='/removeExpense' exact>
+                        <div>Remove Expense</div>
+                    </PrivateRoute>
+                </AppContextProvider>
+            </Switch>
         </Router>
     )
 }
