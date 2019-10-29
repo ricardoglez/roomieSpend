@@ -16,6 +16,7 @@ import {
     Button
 } from '@material-ui/core';
 import Joi from '@hapi/joi';
+
 import API from '../../utils/API';
 import { emailError, passwordError } from '../../utils/common';  
 import { userModel } from '../../utils/common';
@@ -87,22 +88,20 @@ const SignIn = () => {
             email, password, username
         };
 
-        API.signIn(signInObj)
+        API.signIn( signInObj )
         .then( response => {
             handleSubmitting(false);
-            console.log(response);
-            const userObj = new userModel( 
-                response.user.uid, 
-                username, 
-                response.user.metadata.lastSignInTime, 
-                response.user.refreshToken,
-            );
-
-            AppActions.updateUserData(dispatch, userObj);
-            AppActions.updateAuthState(dispatch, true);
-            AppActions.redirectTo(dispatch, true, '/viewExpenses');
+            if(!response.success){
+                handleSubmitting(false);
+                mapError(response.error);    
+            } else {
+                console.log(response.data);
+                AppActions.updateUserData(dispatch, response.data.user);
+                AppActions.updateAuthState(dispatch, true);
+                AppActions.redirectTo(dispatch, true, '/viewExpenses');
+            }
         })
-        .catch(error => {
+        .catch( error => {
             console.error('Error While SingIn');
             console.error(error);
             handleSubmitting(false);
@@ -112,7 +111,7 @@ const SignIn = () => {
 
     const checkAvailability = () => {
 
-        if( username.length < 4){ return }
+        if( !username || username.length < 4){ return }
         handleSearchUsername(true);
         API.checkUsernameAvailability( username )
         .then( response => {
