@@ -8,6 +8,7 @@ import {
     FormControlLabel, 
     FormLabel, 
     TextField,
+    CircularProgress,
     FormHelperText,
     Grid, 
     Paper,
@@ -38,6 +39,14 @@ const useStyles = makeStyles(theme => {
         width:'80%',
         alignItems:'center'
     },
+    inputFlex:{
+        flexGrow:1,
+        display:'flex',
+
+    },
+    inputIcon:{
+        width:'20%'
+    },
     textField: {
         marginLeft: theme.spacing(2),
         marginRight: theme.spacing(2),
@@ -50,12 +59,24 @@ const useStyles = makeStyles(theme => {
 
 const SignIn = () => {
     let [state, dispatch]  =useContext(AppContext);
+    //Email props
     let [email, handleEmail] = useState(null);
     let [isEmailCorrect, handleEmailValidation] = useState(true);
     let [emailErrorMessage, handleEmailErrorMessage] = useState(emailError);
+    //Username props
+    let [username, handleUsername] = useState(null);
+    let [isSearchingUsername, handleSearchUsername] = useState(false);
+    let [isUsernameCorrect, handleUsernameValidation] = useState(true);
+    let [usernameErrorMessage, handleUsernameErrorMessage] = useState('');
+    //TeamID props
+    let [teamname, handleTeamname] = useState(null);
+    let [isTeamnameCorrect, handleTeamValidation] = useState(true);
+    let [teamnameErrorMessage, handleTeamnameErrorMessage] = useState('');
+    //Password props
     let [password, handlePassword] = useState(null);
     let [isPasswordCorrect, handlePasswordValidation] = useState(false);
     let [passwordErrorMessage, handlePasswordErrorMessage] = useState(passwordError);
+    //FormState Props
     let [isReadyToSubmit, handleIsReady] = useState(false) 
     let [isSubmitting , handleSubmitting] = useState(false);
 
@@ -63,14 +84,20 @@ const SignIn = () => {
         handleEmailErrorMessage(emailError);
         handleSubmitting(true);
         const signInObj = {
-            email, password
+            email, password, username
         };
 
         API.signIn(signInObj)
         .then( response => {
             handleSubmitting(false);
             console.log(response);
-            const userObj = new userModel( response.user.uid, response.user.displayName, response.user.metadata.lastSignInTime, response.user.refreshToken );
+            const userObj = new userModel( 
+                response.user.uid, 
+                username, 
+                response.user.metadata.lastSignInTime, 
+                response.user.refreshToken,
+            );
+
             AppActions.updateUserData(dispatch, userObj);
             AppActions.updateAuthState(dispatch, true);
             AppActions.redirectTo(dispatch, true, '/viewExpenses');
@@ -82,6 +109,28 @@ const SignIn = () => {
             mapError(error);
         })
     };
+
+    const checkAvailability = () => {
+
+        if( username.length < 4){ return }
+        handleSearchUsername(true);
+        API.checkUsernameAvailability( username )
+        .then( response => {
+            console.log(response);
+            if(response.success && response.isAvailable){
+                handleSearchUsername(false);        
+                handleUsernameValidation(true);
+                handleUsernameErrorMessage(null);
+            } else {
+                handleSearchUsername(false);
+                handleUsernameValidation(false);
+                handleUsernameErrorMessage('Este apodo ya esta ocupado')
+            }
+        } )
+        .catch( error => {
+
+        });
+    }
 
     const mapError = ( error )=> {
         console.log(error.code);
@@ -103,6 +152,19 @@ const SignIn = () => {
         }
     }
 
+    //Effect to validate username
+    useEffect(() => {
+        if( username === null ){ return}
+        let usernameSchema = Joi.string().min(4).required();
+        let validUsername = usernameSchema.validate(username);
+        if( validUsername.hasOwnProperty('error') ){
+            handleUsernameValidation(false);
+            handleUsernameErrorMessage('El apodo debe de tener un mínimo de 4 carácteres');
+        }
+        else {
+            handleUsernameValidation(true);
+        }
+    }, [username]);
     //Effect to validate email
     useEffect(() => {
         if( email === null ){ return}
@@ -131,15 +193,16 @@ const SignIn = () => {
     }, [password]);
 
     useEffect( () => {
-        if( isPasswordCorrect && isEmailCorrect ){
+        if( isPasswordCorrect && isEmailCorrect && isUsernameCorrect ){
             handleIsReady(true);
         }
         else {
             handleIsReady(false);
         }
-    } ,[ isPasswordCorrect, isEmailCorrect])
+    } ,[ isPasswordCorrect, isEmailCorrect, isUsernameCorrect])
 
     const classes = useStyles();
+    
     return (
     <Grid 
         container
@@ -154,6 +217,41 @@ const SignIn = () => {
                         Regístrate 
                     </FormLabel>
                     <FormGroup >
+                        <FormControl>
+                        <Grid container alignItems="center">
+                            <Grid item xs={isSearchingUsername ? 9 : 12} className={classes.textField}>
+                                <TextField
+                                    id="username"
+                                    error={ username != null && !isUsernameCorrect }
+                                    name="username"
+                                    label="Apodo"
+                                    defaultValue=""
+                                    className={ classes.inputFlex } 
+                                    margin="normal"
+                                    variant="outlined"
+                                    onBlur={checkAvailability}
+                                    onChange={( e ) => { handleUsername(e.target.value) } }
+                                />
+                                {
+                                    username  === null 
+                                    ? null 
+                                    : isUsernameCorrect ? 
+                                    <FormHelperText success > Este apodo esta disponible </FormHelperText>
+                                    :
+                                    <FormHelperText error > { usernameErrorMessage } </FormHelperText>
+                                }
+                            </Grid>
+                            {
+                                isSearchingUsername
+                                ?
+                                <Grid item xs='2'>
+                                   <CircularProgress />
+                                </Grid>
+                                :
+                                null
+                            }
+                        </Grid>
+                        </FormControl>
                         <FormControl>
                             <TextField
                                 id="email"
