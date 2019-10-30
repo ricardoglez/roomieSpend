@@ -75,6 +75,12 @@ const AddSpendForm = () => {
         setValues({ ...values, [name]: event.target.value });
       };
 
+      const handleInvolvedUsers = (event) => {
+        let oldVals = values;
+        oldVals.involvedUsers = users.filter( u => event.target.value.includes( u.userId ) );
+        setValues({ ...oldVals });
+      };
+
       const handleDate = (date) => {
         setValues({...values, date: date});
       };
@@ -126,9 +132,9 @@ const AddSpendForm = () => {
           <FormControl className={classes.formControl}>
             <InputLabel htmlFor="involvedUsers">¿Quiénes comparten la compra?</InputLabel>
             <Select
-                value={values.involvedUsers}
+                value={values.involvedUsers.map( u => u.userId )}
                 multiple
-                onChange={(e) => {handleChange(e, 'involvedUsers')}}
+                onChange={(e) => { handleInvolvedUsers(e, 'involvedUsers')}}
                 input={<Input id='involvedUsers'/>}
               >
                 { renderAvailableUsers(users) }
