@@ -92,8 +92,7 @@ const AppBody = ({ children, ...options }) => {
     useEffect( () => {
         API.getUserData()
         .then( response => {
-            const userObj = new userModel( response.data.uid, response.data.displayName, response.data.lastLogin, response.data.refreshToken );
-            AppActions.updateUserData(dispatch, userObj);
+            AppActions.updateUserData(dispatch, response.data);
             AppActions.updateAuthState(dispatch, true);
             AppActions.updateMounted(dispatch, true);
         })
