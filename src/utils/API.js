@@ -79,6 +79,25 @@ const API = {
             }
         } );    
     },
+    fetchTeams: () => {
+        console.log('Fetch teams...');
+        return new Promise( (res, rej) => {
+            try{
+                let teams = [];
+                firestore.collection('teams')
+                    .onSnapshot( (snapshot) => {
+                    snapshot.forEach( doc => { 
+                        teams.push( doc.data());
+                    });
+                    res( {success: true , data: teams} );
+
+                } );
+            }
+            catch(error){
+                rej({success: false, error:error, data:null})
+            }
+        } );    
+    },
     fetchUsers: () => {
         console.log('Fetch users...');
         return new Promise( (res, rej) => {
@@ -101,31 +120,57 @@ const API = {
     signIn:( data ) => {
         console.log('SignIn this', data);
         return new Promise( (res, rej)=> {
-            firebase.auth().createUserWithEmailAndPassword(data.email, data.password)
-            .then( response => {
-                console.log(response);
-                const userObj = { debt: 0 , displayName:data.username, userId: response.user.uid, assignedPurchases: {} };
-                
-                response.user.updateProfile({ displayName: data.username })
-                    .then( () => {
-                        firestore.collection('users').doc(userObj.userId).set(userObj);
-                        res({
-                            success: true, 
-                            data:{ 
-                                user: userObj,
-                                updatedProfile: firebase.auth().currentUser
-                            }
-                        });
-                    })
-                    .catch( error => {
-                        console.error(error);
-                        rej({ error});
-                    });
-            })
-            .catch(error => {
-                console.error(error);
-                rej({ error});
-            })
+
+            const newMemberRef = firestore.collection('teams')
+                            .doc(data.teamId);
+                            console.log(newMemberRef);
+                            newMemberRef.get()
+                            .then( r => {
+                                let teamData = r.data();
+                                console.log(teamData);
+                                if( !teamData || teamData.teamMembers.length > teamData.maxMembers){
+                                    rej({success:false, type:'team-error', message:`Este equipo tiene un maximo de ${teamData.maxMembers} miembros`  ,error: new Error(`This team only allows ${teamData.maxMembers}`)})    
+                                }
+                                else {
+                                    
+                                    firebase.auth().createUserWithEmailAndPassword(data.email, data.password)
+                                    .then( response => {
+                                        const userObj = {
+                                            debt: 0 , 
+                                            displayName:data.username, 
+                                            userId: response.user.uid, 
+                                            assignedPurchases: {},
+                                            teamId: data.teamId
+                                        };
+                                        
+                                        response.user.updateProfile({ displayName: data.username })
+                                            .then( () => {
+                                                newMemberRef.update({
+                                                    teamMembers: firebase.firestore.FieldValue.arrayUnion( userObj.userId )
+                                                });
+                                                firestore.collection('users').doc(userObj.userId).set(userObj);
+                                                res({
+                                                    success: true, 
+                                                    data:{
+                                                        teamId: userObj.teamId, 
+                                                        user: userObj,
+                                                        updatedProfile: firebase.auth().currentUser
+                                                    }
+                                                });
+                                            })
+                                            .catch( error => {
+                                                console.error(error);
+                                                rej({ error});
+                                            });
+                                    })
+                                    .catch(error => {
+                                        console.error(error);
+                                        rej({ error});
+                                    })
+                                }
+                            })
+
+            
         } );
     },
     logIn:( data ) => {
