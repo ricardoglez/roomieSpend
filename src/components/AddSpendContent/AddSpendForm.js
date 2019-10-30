@@ -6,9 +6,22 @@ import {
      FormControl, 
      TextField, 
      Select, 
-     MenuItem
+     MenuItem,
+     Input,
+     InputAdornment,
+     InputLabel,
+     Button
     } from '@material-ui/core';  
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
 
+import {purchaseModel} from '../../utils/common';
+import API from '../../utils/API';
+
+const purchaseObj = new purchaseModel([],'','',null,'','');
 const useStyles = makeStyles(theme => ({
     container: {
       display: 'flex',
@@ -16,9 +29,14 @@ const useStyles = makeStyles(theme => ({
       width: '90%',
       flexDirection:'column'
     },
+    button:{
+      margin:theme.spacing(1),
+
+    },
+    formControl: {
+      
+    },
     textField: {
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
       flexGrow: 1
     },
     dense: {
@@ -26,49 +44,125 @@ const useStyles = makeStyles(theme => ({
     }
   }));
 
-const AddSpendForm = () => {
-    const classes = useStyles();
-    const [values, setValues] = useState({
-        purchased_by: '',
-        description: '',
-        users_involved: 'Controlled',
-        date:'',
-        total_cost: 0,
-      });
+  const renderAvailableUsers  =(users) => {
+    if(!users || users.length == 0){
+      return null
+    }
+    return users.map( u => {
+      return <MenuItem key={u.userId} value={u.userId}>{u.displayName}</MenuItem>
+    } )
+  };
 
-      const handleChange = name => event => {
+const AddSpendForm = () => {
+
+    const classes = useStyles();
+    const [users, handleUsers ] = useState(null);  
+
+    const [values, setValues] = useState( purchaseObj );
+
+    useEffect(()=>{
+      API.fetchUsers()
+      .then(response => {
+        console.log(response);
+        handleUsers(response.data);
+      })
+    },[])
+
+      const handleChange = (event, name) => {
+        console.log('handleSelect');
         setValues({ ...values, [name]: event.target.value });
       };
 
+      const handleDate = (date) => {
+        setValues({...values, date: date});
+      };
+
+      const addPurchase = ( )=> {
+        API.postPurchase(values)
+          .then(response => {
+            console.log(response);
+            
+          })
+          .catch(error => {
+            console.error(error);
+          })
+      }
+
     return (
         <form className={classes.container} noValidate >
-            <TextField
-                id="outlined-purchased_by"
-                label="¿Quien pagó?"
-                className={classes.textField}
-                value={values.purchased_by}
-                onChange={handleChange('purchased_by')}
-                margin="normal"
-                variant="outlined"
-            /> 
-            <TextField
-                id="outlined-total-cost"
-                label="¿Cuánto pagó?"
-                className={classes.textField}
-                value={values.total_cost}
-                onChange={handleChange('total_cost')}
-                margin="normal"
-                variant="outlined"
-            /> 
+          <FormControl className={classes.formControl}>
+            <InputLabel htmlFor="title">¿Que se compró?</InputLabel>
+            <Input
+              id="title"
+              value={values.title}
+              onChange={(e) => { handleChange(e, 'title') }}
+              variant='outlined'
+            />
+          </FormControl>
+          <FormControl className={classes.formControl}>
+            <InputLabel htmlFor="purchasedBy">¿Quién hizó el pago?</InputLabel>
             <Select
-                value={values.users_involved}
-                placeholder='¿Quien participó?'
-                onChange={handleChange('users_involved')}
-            >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
+                value={values.purchasedBy}
+                onChange={(e) => {handleChange(e, 'purchasedBy')}}
+                input={<Input id='purchasedBy'/>}
+              >
+                {renderAvailableUsers(users) }
             </Select>
+          </FormControl> 
+          <FormControl className={classes.formControl}>
+            <InputLabel htmlFor="totalCost">¿Cánto pagó?</InputLabel>
+            <Input
+              id="totalCost"
+              type='numeric'
+              pattern='[0-9]'
+              value={values.totalCost}
+              onChange={(e) => { handleChange(e, 'totalCost') }}
+              startAdornment={<InputAdornment position="start">$</InputAdornment>}
+              variant='outlined'
+            />
+          </FormControl> 
+          <FormControl className={classes.formControl}>
+            <InputLabel htmlFor="involvedUsers">¿Quiénes comparten la compra?</InputLabel>
+            <Select
+                value={values.involvedUsers}
+                multiple
+                onChange={(e) => {handleChange(e, 'involvedUsers')}}
+                input={<Input id='involvedUsers'/>}
+              >
+                { renderAvailableUsers(users) }
+            </Select>
+          </FormControl> 
+          <FormControl className={classes.formControl}>
+            <InputLabel htmlFor="description">Agrega una descripción</InputLabel>
+            <Input
+              id="title"
+              value={values.description}
+              max={100}
+              onChange={(e) => { handleChange(e, 'description') }}
+              variant='outlined'
+            />
+          </FormControl>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <FormControl className={classes.formControl}>
+              <KeyboardDatePicker
+                margin="normal"
+                id="date-picker-dialog"
+                label="¿Cuándo se compró?"
+                value={values.date}
+                onChange={handleDate}
+                KeyboardButtonProps={{
+                  'aria-label': 'change date',
+                }}
+              />
+            </FormControl>
+          </MuiPickersUtilsProvider>
+          <Button 
+            onClick={addPurchase} 
+            variant="contained" 
+            color="primary" 
+            className={classes.button} >
+              Guardar
+            </Button>
         </form>
     )
 };
