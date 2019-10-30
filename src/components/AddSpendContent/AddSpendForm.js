@@ -63,7 +63,7 @@ const AddSpendForm = () => {
     const [values, setValues] = useState( purchaseObj );
 
     useEffect(()=>{
-      API.fetchUsers()
+      API.fetchTeammates(state.userData.teamId)
       .then(response => {
         console.log(response);
         handleUsers(response.data);
