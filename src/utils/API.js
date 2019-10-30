@@ -26,22 +26,28 @@ const API = {
         return user.updateProfile(updatedUser)
     },
     getUserData: () => {
-        console.log('Get user Data');
         return new Promise( (res, rej) => {
             try{
                 firebase.auth()
                 .onAuthStateChanged( (user) =>{
                     if( user ){
-                        const userFormatted = {
-                            uid: user.uid,
-                            displayName: user.displayName,
-                            lastLogin: user.metadata.lastSignInTime,
-                            refreshToken: user.refreshToken,
-                        }
-                        res( { success: true , data:userFormatted });
+                        firestore.collection('users').doc(user.uid).get()
+                        .then( userData => {
+                            const uD = userData.data()
+                            const userFormatted = {
+                                uid: user.uid,
+                                displayName: user.displayName,
+                                teamId: uD.teamId,
+                                debt: uD.debt,
+                                assignedPurchases: uD.assignedPurchases,
+                                lastLogin: user.metadata.lastSignInTime,
+                                refreshToken: user.refreshToken,
+                            };
+                            res( { success: true , data:userFormatted });
+                        })                        
                     }
                     else {
-                        console.error('this Uer isnt auth', user);
+                        console.error('this User isnt auth', user);
                         rej( { success: false , error:{ message: 'User isnt auth'} });
                     }
                 } )
@@ -58,11 +64,9 @@ const API = {
         return firestore.collection('purchase').add(data)
     },
     fetchPurchases: () => {
-        console.log('Fetch purchases...');
         return new Promise( (res, rej) => {
             try{
                 const user = firebase.auth().currentUser;
-                console.log(user.uid);
                 let purchases = [];
                 firestore.collection('purchase').where('involvedUsers','array-contains',user.uid)
                     .onSnapshot( ( snapshot) => {
@@ -97,6 +101,40 @@ const API = {
                 rej({success: false, error:error, data:null})
             }
         } );    
+    },
+    fetchTeammates: ( teamId ) => {
+        console.log('----Fetch Teammates----');
+        console.log(teamId);
+        return new Promise((res, rej) => {
+            try{
+                let teammates = [];
+                const refTeams = firestore.collection('teams');
+
+                refTeams.doc(teamId).get()
+                    .then( team => {
+                        if(!team){
+                            rej({success: false , error: new Error('The associated team doesnt exist') })
+                        }
+                        let teamMembers = team.data().teamMembers;
+                        firestore.collection('users')
+                            .get()
+                            .then( usersData => {
+                                usersData.forEach( user => {
+                                    console.log(user.data().userId);
+                                    if( teamMembers.includes( user.data().userId ) ){
+                                        teammates.push(user.data());
+                                    }
+                                })
+                                console.log('Result:', teammates);
+                                res({success:true , data: teammates })
+                            });
+                    } );
+            }
+            catch(error ){
+                console.log(error);
+                rej({success: false , error:error})   
+            }
+        });
     },
     fetchUsers: () => {
         console.log('Fetch users...');
@@ -143,7 +181,7 @@ const API = {
                                             teamId: data.teamId
                                         };
                                         
-                                        response.user.updateProfile({ displayName: data.username })
+                                        response.user.updateProfile({ displayName: data.username , teamId: data.teamId })
                                             .then( () => {
                                                 newMemberRef.update({
                                                     teamMembers: firebase.firestore.FieldValue.arrayUnion( userObj.userId )
