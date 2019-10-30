@@ -16,7 +16,6 @@ import AppActions from '../../actions/AppActions';
 import AddSpendContent from '../AddSpendContent';
 
 const useStyles = makeStyles(theme => {
-    console.log(theme);
     return {
         root: {
             minWidth: '80%',
