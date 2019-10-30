@@ -20,6 +20,8 @@ import DateFnsUtils from '@date-io/date-fns';
 
 import {purchaseModel} from '../../utils/common';
 import API from '../../utils/API';
+import AppActions from '../../actions/AppActions';
+import { AppContext } from '../../context/AppContext';
 
 const purchaseObj = new purchaseModel([],'','',null,'','');
 const useStyles = makeStyles(theme => ({
@@ -54,9 +56,9 @@ const useStyles = makeStyles(theme => ({
   };
 
 const AddSpendForm = () => {
-
+    const [state, dispatch] = useContext(AppContext);
     const classes = useStyles();
-    const [users, handleUsers ] = useState(null);  
+    const [users, handleUsers ] = useState(null);
 
     const [values, setValues] = useState( purchaseObj );
 
@@ -66,7 +68,7 @@ const AddSpendForm = () => {
         console.log(response);
         handleUsers(response.data);
       })
-    },[])
+    },[]);
 
       const handleChange = (event, name) => {
         console.log('handleSelect');
@@ -81,7 +83,7 @@ const AddSpendForm = () => {
         API.postPurchase(values)
           .then(response => {
             console.log(response);
-            
+            AppActions.handleModal(dispatch , false);
           })
           .catch(error => {
             console.error(error);
