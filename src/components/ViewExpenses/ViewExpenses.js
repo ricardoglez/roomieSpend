@@ -18,9 +18,7 @@ import AddSpendContent from '../AddSpendContent';
 const useStyles = makeStyles(theme => {
     return {
         root: {
-            minWidth: '80%',
-            width: 'auto',
-            maxWidth: '95%',
+            minWidth: '95%',
             color:'#fff',
             marginTop: theme.spacing(2),
           },
