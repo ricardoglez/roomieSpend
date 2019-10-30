@@ -113,7 +113,9 @@ const AppBody = ({ children, ...options }) => {
                 <TransitionModal content={ state.modalContent } />
                 { !state.isMounted || state.isSubmitting 
                 ? 
-                <LinearProgress color="secondary" variant="query" />
+                <Grid item xs={12}>
+                    <LinearProgress />
+                </Grid>
                 : 
                 children
                 }
