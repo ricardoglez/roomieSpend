@@ -19,6 +19,8 @@ const useStyles = makeStyles(theme => {
     console.log(theme);
     return {
         root: {
+            minWidth: '80%',
+            width: 'auto',
             maxWidth: '95%',
             color:'#fff',
             marginTop: theme.spacing(2),
