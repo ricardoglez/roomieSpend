@@ -5,10 +5,14 @@ import {Link} from 'react-router-dom';
 import { 
     FormGroup, 
     FormControl, 
-    FormControlLabel, 
     FormLabel, 
     TextField,
+    Input,
+    InputLabel,
+    MenuItem,
+    Select,
     CircularProgress,
+    LinearProgress,
     FormHelperText,
     Grid, 
     Paper,
@@ -28,11 +32,11 @@ const useStyles = makeStyles(theme => {
         flexGrow: 1
     },
     formWrap:{
-        marginTop:theme.spacing(5),
-        padding: theme.spacing(2),
+        marginTop:theme.spacing(1),
+        padding: theme.spacing(1),
         textAlign: 'center',
         background:theme.palette.background.default,
-        boxShadow: theme.shadows[4]
+        boxShadow: theme.shadows[3]
     },
     formGroup:{
         display:'flex',
@@ -51,15 +55,30 @@ const useStyles = makeStyles(theme => {
     textField: {
         marginLeft: theme.spacing(2),
         marginRight: theme.spacing(2),
-      },
-      button: {
-          margin: theme.spacing(2)
-      }
+    },
+    button: {
+        margin: theme.spacing(2)
+    },
+    customSelect:{
+        margin:theme.spacing(2)
+    }
 }
 });
 
+
+const renderAvailableTeams = (teams) => {
+    if(!teams || teams.length == 0){
+      return null
+    }
+    return teams.map( t => {
+      return <MenuItem key={t.teamId} value={t.teamId}>{t.teamName}</MenuItem>
+    } )
+  };
+
 const SignIn = () => {
     let [state, dispatch]  =useContext(AppContext);
+    let [isMounted, handleMounted] = useState(false);
+
     //Email props
     let [email, handleEmail] = useState(null);
     let [isEmailCorrect, handleEmailValidation] = useState(true);
@@ -70,9 +89,11 @@ const SignIn = () => {
     let [isUsernameCorrect, handleUsernameValidation] = useState(true);
     let [usernameErrorMessage, handleUsernameErrorMessage] = useState('');
     //TeamID props
-    let [teamname, handleTeamname] = useState(null);
-    let [isTeamnameCorrect, handleTeamValidation] = useState(true);
-    let [teamnameErrorMessage, handleTeamnameErrorMessage] = useState('');
+    let [teamName, handleTeamName] = useState('');
+    let [isTeamNameCorrect, handleTeamNameValidation] = useState(true);
+    let [teamNameErrorMessage, handleTeamNameErrorMessage] = useState('');
+    let [teams, handleTeams] = useState( null )
+    
     //Password props
     let [password, handlePassword] = useState(null);
     let [isPasswordCorrect, handlePasswordValidation] = useState(false);
@@ -81,15 +102,35 @@ const SignIn = () => {
     let [isReadyToSubmit, handleIsReady] = useState(false) 
     let [isSubmitting , handleSubmitting] = useState(false);
 
+    useEffect( () => {
+        API.fetchTeams()
+        .then(response=> {
+            console.log(response);
+            handleMounted(true);
+            handleTeams(response.data);
+        })
+        .catch(error=> {
+            console.error(error);
+        })
+    }, []);
+
+    const updateTeam = (e) => {
+        let val = e.target.value;
+        console.log(val);
+        handleTeamName(val);
+    }
+
     const signInUser = () => {
         handleEmailErrorMessage(emailError);
         handleSubmitting(true);
+        handleTeamNameValidation(true);
         const signInObj = {
-            email, password, username
+            email, password, username, teamId: teamName
         };
-
+        console.log(signInObj);
         API.signIn( signInObj )
         .then( response => {
+            console.log(response);
             handleSubmitting(false);
             if(!response.success){
                 handleSubmitting(false);
@@ -105,7 +146,19 @@ const SignIn = () => {
             console.error('Error While SingIn');
             console.error(error);
             handleSubmitting(false);
-            mapError(error);
+            if( error.hasOwnProperty('type') && error.type == 'team-error' ){
+                handleTeamNameErrorMessage(error.message);
+                handleTeamNameValidation(false);
+            }
+            else{
+                if( error.hasOwnProperty('error')){
+                    mapError(error.error);                
+                }
+                else{
+                    mapError(error);
+                }
+            }
+            
         })
     };
 
@@ -164,6 +217,11 @@ const SignIn = () => {
             handleUsernameValidation(true);
         }
     }, [username]);
+    //Effect to validate team
+    useEffect(() => {
+        if( teamName === null ){ return }
+        handleTeamNameValidation(true);
+    }, [teamName]);
     //Effect to validate email
     useEffect(() => {
         if( email === null ){ return}
@@ -198,10 +256,14 @@ const SignIn = () => {
         else {
             handleIsReady(false);
         }
-    } ,[ isPasswordCorrect, isEmailCorrect, isUsernameCorrect])
+    } ,[ isPasswordCorrect, isEmailCorrect, isUsernameCorrect, isTeamNameCorrect])
 
     const classes = useStyles();
     
+    if(!isMounted){
+        return <LinearProgress/>
+    }
+
     return (
     <Grid 
         container
@@ -251,6 +313,26 @@ const SignIn = () => {
                             }
                         </Grid>
                         </FormControl>
+                        <FormControl >
+                            <InputLabel 
+                                className={classes.textField}                            
+                                htmlFor="team">
+                                    Elige un equipo
+                            </InputLabel>
+                            <Select
+                                className={classes.textField}
+                                value={teamName}
+                                onChange={updateTeam}
+                            >
+                                {renderAvailableTeams(teams) }
+                            </Select>
+                            {
+                                 !isTeamNameCorrect ? 
+                                <FormHelperText className={classes.textField} error > { teamNameErrorMessage } </FormHelperText>
+                                :
+                                null
+                            }
+                        </FormControl> 
                         <FormControl>
                             <TextField
                                 id="email"
