@@ -9,6 +9,7 @@ import {
     LinearProgress
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { format, formatDistance, formatRelative, subDays } from 'date-fns'
 
 import API from '../../utils/API';
 import { AppContext } from '../../context/AppContext';
@@ -19,8 +20,7 @@ const useStyles = makeStyles(theme => {
     console.log(theme);
     return {
         root: {
-            width: '100%',
-            maxWidth: '80%',
+            maxWidth: '95%',
             color:'#fff',
             marginTop: theme.spacing(2),
           },
@@ -44,10 +44,12 @@ const useStyles = makeStyles(theme => {
     }
 });
 
-const PurchasesList = ({purchases}) => {
+const PurchaseList = ({purchases}) => {
+    const classes = useStyles();
+
     return purchases.map( p => {
         return (
-        <ListItem alignItems="flex-start" className={classes.listItem}>
+        <ListItem key={p.purchaseId} alignItems="flex-start" className={classes.listItem}>
             <ListItemText
             primary={p.title}
             secondary={
@@ -70,26 +72,20 @@ const PurchasesList = ({purchases}) => {
 const ViewExpenses = () => {
     let [state, dispatch] = useContext(AppContext);
     let [isMounted, handleMounted]  = useState(false)
-    let [availableUsers, handleAvailableUsers]  = useState(null)
     let [purchases, handleAvailablePurchases]  = useState(null)
     
     useEffect(()=> {
-        Promise.all( [ API.fetchUsers(), API.fetchPurchases() ] )
-        .then( values => {
-            console.log(values);
-            let [users, purchases] = values;
-            console.log(users, purchases);
-            handleMounted(true)
-            if(users.success){
-                handleAvailableUsers(users.data);
-            }
-            if(purchases.success){
-                handleAvailablePurchases(purchases.data);
-            }
-        })
-        .catch(error => {
-            console.error(error);
-        });
+        API.fetchPurchases()
+            .then( purchases => {
+                handleMounted(true);
+                if(purchases.success){
+                    handleAvailablePurchases(purchases.data);
+                }
+            })
+            .catch(error => { 
+                handleMounted(true);
+                console.error(error);
+            })
     },[]);
 
     const classes = useStyles();
