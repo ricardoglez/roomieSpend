@@ -77,7 +77,13 @@ const AddSpendForm = () => {
 
       const handleInvolvedUsers = (event) => {
         let oldVals = values;
-        oldVals.involvedUsers = users.filter( u => event.target.value.includes( u.userId ) );
+        let usersObject = users.filter( u => event.target.value.includes( u.userId ) );
+        let obj = {}
+        usersObject.forEach( u => {
+          obj[u.userId] = u; 
+        });
+        oldVals.involvedUsers = obj;
+
         setValues({ ...oldVals });
       };
 
@@ -132,7 +138,7 @@ const AddSpendForm = () => {
           <FormControl className={classes.formControl}>
             <InputLabel htmlFor="involvedUsers">¿Quiénes comparten la compra?</InputLabel>
             <Select
-                value={values.involvedUsers.map( u => u.userId )}
+                value={ Object.keys(values.involvedUsers) }
                 multiple
                 onChange={(e) => { handleInvolvedUsers(e, 'involvedUsers')}}
                 input={<Input id='involvedUsers'/>}
