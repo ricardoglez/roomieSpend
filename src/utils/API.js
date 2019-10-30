@@ -68,11 +68,13 @@ const API = {
             try{
                 const user = firebase.auth().currentUser;
                 let purchases = [];
-                firestore.collection('purchase').where('involvedUsers','array-contains',user.uid)
+                firestore.collection('purchase')
                     .onSnapshot( ( snapshot) => {
                     snapshot.forEach( doc => { 
                         console.log(doc.data());
-                        purchases.push( doc.data());
+                        if( Object.keys( doc.data().involvedUsers ).includes(user.uid) ){
+                            purchases.push( doc.data());
+                        }
                     });
                     res( {success: true , data: purchases} );
 
