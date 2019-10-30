@@ -53,14 +53,21 @@ const API = {
             }
         } )
     },
+    postPurchase:( data ) => {
+        console.log('Add purchase', data);
+        return firestore.collection('purchase').add(data)
+    },
     fetchPurchases: () => {
         console.log('Fetch purchases...');
         return new Promise( (res, rej) => {
             try{
+                const user = firebase.auth().currentUser;
+                console.log(user.uid);
                 let purchases = [];
-                firestore.collection('purchase')
+                firestore.collection('purchase').where('involvedUsers','array-contains',user.uid)
                     .onSnapshot( ( snapshot) => {
                     snapshot.forEach( doc => { 
+                        console.log(doc.data());
                         purchases.push( doc.data());
                     });
                     res( {success: true , data: purchases} );
