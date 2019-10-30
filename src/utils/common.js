@@ -10,3 +10,13 @@ export class userModel {
           this.assignedPurchases        = assignedPurchases;
       } 
  };
+export class purchaseModel {
+      constructor( involvedUsers, title, description, date, purchasedBy, totalCost ){
+          this.involvedUsers = involvedUsers;
+          this.title = title;
+          this.description = description;
+          this.date = date;
+          this.purchasedBy = purchasedBy;
+          this.totalCost = totalCost;
+      } 
+ };
