@@ -16,11 +16,11 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.background.paper,
       border: '2px solid #000',
       boxShadow: theme.shadows[5],
-      padding: theme.spacing(2, 4, 3),
+      padding: theme.spacing(1, 2),
       flexGrow:1,
       display:'flex',
       flexDirection:'column',
-      minWidth:'500px'
+      minWidth:'50%'
     }
   }));
 
@@ -33,15 +33,14 @@ import {
 } from '@material-ui/core';
 import { mergeClasses } from '@material-ui/styles';
 
-const AddSpendContent = ( ) => {
+const AddSpendContent = ( { availableUsers } ) => {
     let [state, dispatch] = useContext(AppContext);
     const classes = useStyles();
-
     return (
         <Paper className={classes.paper}>
-            <Typography variant='h5' gutterBottom >Agregar compra</Typography>
+            <Typography variant='h6' gutterBottom >Agregar compra</Typography>
             <Typography variant='subtitle2' gutterBottom >Ingresa la información referente a la compra</Typography>
-            <AddSpendForm/>
+            <AddSpendForm availableUsers={availableUsers}/>
         </Paper>
     )
 }
