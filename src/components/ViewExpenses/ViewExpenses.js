@@ -5,6 +5,8 @@ import {
     ListItem,
     Typography, 
     ListItemText,
+    Box,
+    Badge,
     Fab,
     LinearProgress
 } from '@material-ui/core';
@@ -34,7 +36,20 @@ const useStyles = makeStyles(theme => {
               borderRadius:theme.shape.borderRadius,
               backgroundColor: theme.palette.primary.main,
               marginTop:theme.spacing(1),
-              border: `1px solid #fff`
+              border: `1px solid #fff`,
+              display:'flex',
+              flexDirection:'column'
+          },
+          contentFlex:{
+              display:'flex',
+              flexGrow:1,
+              flexDirection:'row',
+              alignContent:'center'
+          },
+          badgeContainer:{
+            display:'flex',
+            flex: '1 auto',
+            width:'auto',
           },
           fab: {
             margin: theme.spacing(1),
@@ -42,27 +57,62 @@ const useStyles = makeStyles(theme => {
     }
 });
 
+const InvolvedUsers = ({users}) => {
+    const classes = useStyles();
+
+    const usersName = Object.keys(users).map( usersKeys => {
+        const user = users[usersKeys];
+        return (
+            <Box m='1' className={classes.badgeContainer}>
+                <Badge badgeContent={ user.displayName.split(0,1) } color="secondary">
+                </Badge>
+            </Box>
+        )
+    });
+
+    return (
+        <Box className={classes.contentFlex}>
+            {usersName}
+        </Box>
+    )
+}
+
+const PurchasedBy = ({user}) => {
+    return(
+        <Box display={'flex'}>
+            <Box>Comprador</Box>
+            <Box>{user.displayName}</Box>
+        </Box>
+    )
+} 
+
 const PurchaseList = ({purchases}) => {
     const classes = useStyles();
 
     return purchases.map( p => {
         return (
         <ListItem key={p.purchaseId} alignItems="flex-start" className={classes.listItem}>
-            <ListItemText
-            primary={p.title}
-            secondary={
-                <React.Fragment>
-                <Typography
-                    component="span"
-                    variant="body2"
-                    className={ classes.inline }
-                    color="textPrimary"
-                >
-                    {p.description}
-                </Typography>
-                </React.Fragment>
-            }
-            />
+            <div className={classes.contentFlex}>
+                <InvolvedUsers users={p.involvedUsers}/> 
+            </div>
+            <div className={classes.contentFlex}>
+                <ListItemText
+                primary={p.title}
+                secondary={
+                    <React.Fragment>
+                    <Typography
+                        component="span"
+                        variant="body2"
+                        className={ classes.inline }
+                        color="textPrimary"
+                    >
+                        {p.description}
+                    </Typography>
+                    </React.Fragment>
+                }
+                />
+            </div>
+            
         </ListItem>)
     });
 }
