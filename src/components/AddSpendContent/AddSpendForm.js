@@ -10,6 +10,8 @@ import {
      Input,
      InputAdornment,
      InputLabel,
+     ListItemText,
+     Checkbox,
      Button
     } from '@material-ui/core';  
 import {
@@ -46,12 +48,22 @@ const useStyles = makeStyles(theme => ({
     }
   }));
 
-  const renderAvailableUsers  =(users) => {
+  const renderAvailableUsers  = ( users , involvedUsers ) => {
     if(!users || users.length == 0){
       return null
     }
     return users.map( u => {
-      return <MenuItem key={u.userId} value={u.userId}>{u.displayName}</MenuItem>
+      return (
+        <MenuItem key={u.userId} value={u.userId}>
+          { involvedUsers 
+            ? 
+            <Checkbox checked={ Object.keys( involvedUsers ).find( uKey => uKey === u.userId ) > -1  }/>
+            :
+            null
+          }
+          <ListItemText primary={u.displayName}/>
+        </MenuItem>
+      )
     } )
   };
 
@@ -120,7 +132,7 @@ const AddSpendForm = () => {
                 onChange={(e) => {handleChange(e, 'purchasedBy')}}
                 input={<Input id='purchasedBy'/>}
               >
-                {renderAvailableUsers(users) }
+                { renderAvailableUsers( users ) }
             </Select>
           </FormControl> 
           <FormControl className={classes.formControl}>
@@ -138,12 +150,14 @@ const AddSpendForm = () => {
           <FormControl className={classes.formControl}>
             <InputLabel htmlFor="involvedUsers">¿Quiénes comparten la compra?</InputLabel>
             <Select
-                value={ Object.keys(values.involvedUsers) }
+                labelId='involvedUsersLabel'
+                id='involvedUsers'
                 multiple
+                value={ Object.keys(values.involvedUsers) }
                 onChange={(e) => { handleInvolvedUsers(e, 'involvedUsers')}}
                 input={<Input id='involvedUsers'/>}
               >
-                { renderAvailableUsers(users) }
+                { renderInvolvedUsers( users, values.involvedUsers ) }
             </Select>
           </FormControl> 
           <FormControl className={classes.formControl}>
