@@ -6,10 +6,11 @@ import {
     Typography, 
     ListItemText,
     Box,
-    Badge,
+    Chip,
     Fab,
     LinearProgress
 } from '@material-ui/core';
+import numeral from 'numeral';
 import { makeStyles } from '@material-ui/core/styles';
 
 import API from '../../utils/API';
@@ -44,12 +45,30 @@ const useStyles = makeStyles(theme => {
               display:'flex',
               flexGrow:1,
               flexDirection:'row',
-              alignContent:'center'
+              alignItems:'center',
+              width:'100%',
           },
-          badgeContainer:{
+          chipContainer:{
             display:'flex',
-            flex: '1 auto',
             width:'auto',
+            marginRight:theme.spacing(.5),
+          },
+          alignStart:{
+            alignItems: 'start',
+          },
+          numberData:{
+            marginLeft:theme.spacing(.5),
+            fontWeight: 'bolder',
+            textAlign: 'end',
+          },
+          labelData:{
+            textAlign:'end',
+            fontWeight:'light'
+          },
+          flexRow:{
+            display:'flex',
+            flexDirection:'row',
+            justifyContent:'end'
           },
           fab: {
             margin: theme.spacing(1),
@@ -57,15 +76,14 @@ const useStyles = makeStyles(theme => {
     }
 });
 
-const InvolvedUsers = ({users}) => {
+const InvolvedUsers = ({users, purchase}) => {
     const classes = useStyles();
 
     const usersName = Object.keys(users).map( usersKeys => {
         const user = users[usersKeys];
         return (
-            <Box m='1' className={classes.badgeContainer}>
-                <Badge badgeContent={ user.displayName.split(0,1) } color="secondary">
-                </Badge>
+            <Box key={user.userId} m='1' className={classes.chipContainer}>
+                <Chip label={ user.displayName } color={ purchase.purchasedBy === user.userId ? 'secondary':'default' }/>
             </Box>
         )
     });
@@ -77,40 +95,47 @@ const InvolvedUsers = ({users}) => {
     )
 }
 
-const PurchasedBy = ({user}) => {
-    return(
-        <Box display={'flex'}>
-            <Box>Comprador</Box>
-            <Box>{user.displayName}</Box>
-        </Box>
-    )
-} 
-
-const PurchaseList = ({purchases}) => {
+const PurchaseList = ({users, purchases}) => {
     const classes = useStyles();
 
     return purchases.map( p => {
         return (
         <ListItem key={p.purchaseId} alignItems="flex-start" className={classes.listItem}>
+            <div className={`${classes.contentFlex}  ${classes.alignStart}`}>
+                <Grid container direction='column' >
+                    <Typography component="strong" variant='h6'>{p.title}</Typography>
+                    <React.Fragment>
+                        <Typography
+                            component="span"
+                            variant="body2"
+                            className={ classes.inline }
+                            color="textPrimary"
+                        >
+                            {p.description}
+                        </Typography>
+                    </React.Fragment>
+                </Grid>
+                <Grid container direction='column' alignItems='end'>
+                    <Grid item className={ classes.flexRow }>
+                        <Typography className={classes.labelData}>Total:</Typography>
+                        <Typography className={classes.numberData}>  {numeral(p.totalCost).format('$0,000.0')}</Typography>
+                    </Grid>
+                    <Grid item className={ classes.flexRow }>
+                        <Typography className={classes.labelData}>Dividdo:</Typography>
+                        <Typography className={classes.numberData}> {numeral(p.totalCost/Object.keys(p.involvedUsers).length).format('$0,000.0')}</Typography>
+                    </Grid>
+                    <Grid item className={ classes.flexRow }>
+                        <Typography className={classes.labelData}>Fecha: </Typography>
+                        <Typography className={classes.numberData}> 05/10/2020 </Typography>
+                    </Grid>
+                </Grid>
+            </div>
+            
             <div className={classes.contentFlex}>
-                <InvolvedUsers users={p.involvedUsers}/> 
+                <Typography variant='caption'>Compartido con:</Typography>
             </div>
             <div className={classes.contentFlex}>
-                <ListItemText
-                primary={p.title}
-                secondary={
-                    <React.Fragment>
-                    <Typography
-                        component="span"
-                        variant="body2"
-                        className={ classes.inline }
-                        color="textPrimary"
-                    >
-                        {p.description}
-                    </Typography>
-                    </React.Fragment>
-                }
-                />
+                <InvolvedUsers users={ p.involvedUsers } purchase={p}/>
             </div>
             
         </ListItem>)
