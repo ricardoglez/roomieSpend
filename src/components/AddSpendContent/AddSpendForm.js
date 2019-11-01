@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { 
      Form,
      FormGroup, 
+     Chip,
      FormControl, 
      TextField, 
      Select, 
@@ -40,6 +41,9 @@ const useStyles = makeStyles(theme => ({
     formControl: {
       
     },
+    chip:{
+      margin:2,
+    },
     textField: {
       flexGrow: 1
     },
@@ -55,13 +59,13 @@ const useStyles = makeStyles(theme => ({
     return users.map( u => {
       return (
         <MenuItem key={u.userId} value={u.userId}>
+          <ListItemText primary={u.displayName}/>
           { involvedUsers 
             ? 
-            <Checkbox checked={ Object.keys( involvedUsers ).find( uKey => uKey === u.userId ) > -1  }/>
+            <Checkbox checked={ u.isSelected }/>
             :
             null
           }
-          <ListItemText primary={u.displayName}/>
         </MenuItem>
       )
     } )
@@ -71,6 +75,7 @@ const AddSpendForm = () => {
     const [state, dispatch] = useContext(AppContext);
     const classes = useStyles();
     const [users, handleUsers ] = useState(null);
+    const [isMounted, handleMounted] = useState(false);
 
     const [values, setValues] = useState( purchaseObj );
 
@@ -78,9 +83,26 @@ const AddSpendForm = () => {
       API.fetchTeammates(state.userData.teamId)
       .then(response => {
         console.log(response);
-        handleUsers(response.data);
+
+        handleUsers(  
+          response.data.map( u => {
+            let modU = u;
+            modU.isSelected = false;
+            return modU
+          })
+        );
+        handleMounted(true);
       })
     },[]);
+
+    useEffect( () => {
+      console.log('Make update');
+      if( !users ){ return }
+        const v = users.filter(u => u.isSelected ) 
+        console.log(v);
+        console.log(v.map( v1 => v1.userId ));
+      
+    },[ values ])
 
       const handleChange = (event, name) => {
         console.log('handleSelect');
@@ -96,12 +118,34 @@ const AddSpendForm = () => {
         });
         oldVals.involvedUsers = obj;
 
+        handleUsers( 
+          users.map( u => {
+            if( event.target.value.includes( u.userId )){
+              u.isSelected = true;
+            } else {
+              u.isSelected =false;
+            }
+            return u
+          } )
+        );
         setValues({ ...oldVals });
       };
 
       const handleDate = (date) => {
         setValues({...values, date: date});
       };
+
+      const renderUsersSelected = (  ) => {
+         const u = users;  
+        console.log(u);
+          return u.filter( user => user.isSelected)
+          .map( user => {
+            console.log(user);
+            return (
+              <Chip key={user.userId} label={user.displayName} className={classes.chip} />
+            )
+          });
+      }
 
       const addPurchase = ( )=> {
         API.postPurchase(values)
@@ -113,6 +157,8 @@ const AddSpendForm = () => {
             console.error(error);
           })
       }
+
+      if(!isMounted){ return null }
 
     return (
         <form className={classes.container} noValidate >
@@ -153,11 +199,12 @@ const AddSpendForm = () => {
                 labelId='involvedUsersLabel'
                 id='involvedUsers'
                 multiple
-                value={ Object.keys(values.involvedUsers) }
+                renderValue={ renderUsersSelected }
+                value={ !users ? [] : users.filter( u => u.isSelected).map( u => u.userId )  }
                 onChange={(e) => { handleInvolvedUsers(e, 'involvedUsers')}}
                 input={<Input id='involvedUsers'/>}
               >
-                { renderInvolvedUsers( users, values.involvedUsers ) }
+                { renderAvailableUsers( users, values.involvedUsers ) }
             </Select>
           </FormControl> 
           <FormControl className={classes.formControl}>
