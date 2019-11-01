@@ -71,7 +71,6 @@ const API = {
                 firestore.collection('purchase')
                     .onSnapshot( ( snapshot) => {
                     snapshot.forEach( doc => { 
-                        console.log(doc.data());
                         if( Object.keys( doc.data().involvedUsers ).includes(user.uid) ){
                             purchases.push( doc.data());
                         }
@@ -105,8 +104,8 @@ const API = {
         } );    
     },
     fetchTeammates: ( teamId ) => {
-        console.log('----Fetch Teammates----');
-        console.log(teamId);
+        // console.log('----Fetch Teammates----');
+        // console.log(teamId);
         return new Promise((res, rej) => {
             try{
                 let teammates = [];
@@ -122,12 +121,10 @@ const API = {
                             .get()
                             .then( usersData => {
                                 usersData.forEach( user => {
-                                    console.log(user.data().userId);
                                     if( teamMembers.includes( user.data().userId ) ){
                                         teammates.push(user.data());
                                     }
                                 })
-                                console.log('Result:', teammates);
                                 res({success:true , data: teammates })
                             });
                     } );
