@@ -10,6 +10,7 @@ import {
     Grid, 
     LinearProgress, 
     AppBar, 
+    Avatar,
     Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -22,14 +23,15 @@ import { userModel } from '../utils/common';
 
 
 const initialState = {
-    isMounted   : false,
-    showModal   : false,
-    isSubmitting: false,
-    isAuth      : false,
-    fingerprint : null,
-    userData    : null,
-    redirect    : false,
-    spendingList: false,
+    isMounted     : false,
+    showModal     : false,
+    isSubmitting  : false,
+    isAuth        : false,
+    fingerprint   : null,
+    userData      : null,
+    redirect      : false,
+    spendingList  : false,
+    purchasesList : []
 }
 
 const useStyles = makeStyles( theme => ({
@@ -49,7 +51,11 @@ const useStyles = makeStyles( theme => ({
       },
       appBar: {
         marginBottom: theme.spacing(2),
-        textAlign: 'center'
+        paddingTop: theme.spacing(1),
+        paddingBottom: theme.spacing(1)
+      },
+      avatar:{
+
       },
       userInfo:{
           float:'right'
@@ -67,12 +73,15 @@ const AppContextProvider = ({ children }) => {
     return (
         <AppContext.Provider value={ [state, dispatch] } >
             <div className={ classes.root }>
-                <AppBar position='static' className={classes.appBar}> 
+                <AppBar position='static' className={classes.appBar}>
                     <Grid container alignItems='center' justify='center' >
-                            <Typography 
-                                className={classes.mainHeader}>
-                                Roomies Expenses 
-                            </Typography>
+                            <Grid item xs={state.isAuth ? 8 : 12}>
+                                <Typography 
+                                    className={classes.mainHeader}>
+                                    Roomies Expenses 
+                                </Typography>
+                            </Grid>
+                            <AvatarUserInfo/>
                     </Grid>
                 </AppBar>
                 <Container maxWidth='md'>
@@ -83,6 +92,16 @@ const AppContextProvider = ({ children }) => {
                 <NavigationBar/>
             </div>
         </AppContext.Provider>
+    )
+}
+
+const AvatarUserInfo = ( ) => {
+    const [state, dispatch] = useContext(AppContext);
+    if( !state.isAuth ){ return null }
+    return ( 
+        <Grid item xs={ 4 }>
+            <Avatar>{state.userData.displayName.slice(0,2)}</Avatar>
+        </Grid>
     )
 }
 
@@ -123,3 +142,5 @@ const AppBody = ({ children, ...options }) => {
     }
 }
 export { AppContext, AppContextProvider };
+
+

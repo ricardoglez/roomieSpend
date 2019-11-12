@@ -12,6 +12,11 @@ const AppReducer = ( state, action ) => {
                 return { ...state, isAuth: action.payload.isAuth }
         case 'redirectTo':
                 return { ...state, pathToRedirect: action.payload.pathToRedirect, redirect: action.payload.redirect }
+        case 'updatePurchasesList':
+                return { ...state, purchasesList: action.payload.updatedPurchases }
+        case 'addPurchaseItem':
+            const newList =[...state.purchasesList, action.payload.purchaseItem ] 
+                return { ...state, purchasesList: newList }
         default: 
             return { ...state }
     }

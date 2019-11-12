@@ -34,6 +34,8 @@ const API = {
                         firestore.collection('users').doc(user.uid).get()
                         .then( userData => {
                             const uD = userData.data()
+                            console.log(userData.data);
+                            console.log(uD);
                             const userFormatted = {
                                 uid: user.uid,
                                 displayName: user.displayName,
@@ -69,7 +71,8 @@ const API = {
                 const user = firebase.auth().currentUser;
                 let purchases = [];
                 firestore.collection('purchase')
-                    .onSnapshot( ( snapshot) => {
+                    .get( )
+                    .then( ( snapshot ) => {
                     snapshot.forEach( doc => { 
                         if( Object.keys( doc.data().involvedUsers ).includes(user.uid) ){
                             purchases.push( doc.data());
