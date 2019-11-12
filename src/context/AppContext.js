@@ -1,5 +1,6 @@
 import React, { 
-    useReducer, 
+    useReducer,
+    useState,
     createContext, 
     useEffect,
     useContext 
@@ -19,7 +20,7 @@ import TransitionModal from '../components/TransitionModal';
 import AppReducers from '../reducers/AppReducers';
 import AppActions from '../actions/AppActions';
 import API from '../utils/API';
-import { userModel } from '../utils/common';
+import numeral from 'numeral';
 
 
 const initialState = {
@@ -54,8 +55,9 @@ const useStyles = makeStyles( theme => ({
         paddingTop: theme.spacing(1),
         paddingBottom: theme.spacing(1)
       },
-      avatar:{
-
+      userData:{
+        paddingLeft:theme.spacing(2),
+        paddingRight:theme.spacing(2),
       },
       userInfo:{
           float:'right'
@@ -75,7 +77,7 @@ const AppContextProvider = ({ children }) => {
             <div className={ classes.root }>
                 <AppBar position='static' className={classes.appBar}>
                     <Grid container alignItems='center' justify='center' >
-                            <Grid item xs={state.isAuth ? 8 : 12}>
+                            <Grid item xs={state.isAuth ? 6 : 12}>
                                 <Typography 
                                     className={classes.mainHeader}>
                                     Roomies Expenses 
@@ -98,9 +100,37 @@ const AppContextProvider = ({ children }) => {
 const AvatarUserInfo = ( ) => {
     const [state, dispatch] = useContext(AppContext);
     if( !state.isAuth ){ return null }
+    const classes = useStyles()
+
+    const [totalDebt , updateDebt] = useState( 0 );
+
+    useEffect( () => {
+        const totD = 
+        updateDebt(  
+            Object.keys(state.userData.assignedPurchases).reduce( ( acc, curr ) => {
+                console.log( curr, acc, state.userData.assignedPurchases[curr] );
+                return acc += state.userData.assignedPurchases[curr].involvedUsers[state.userData.uid].debt 
+            } , 0)
+        );
+    });
+
     return ( 
-        <Grid item xs={ 4 }>
-            <Avatar>{state.userData.displayName.slice(0,2)}</Avatar>
+        <Grid item xs={ 6 }>
+            <Grid justify='flex-end' alignItems="center" container direction='row'>
+                <Grid item>
+                    <Avatar>{state.userData.displayName.slice(0,2)}</Avatar>
+                </Grid>
+                <Grid item className={classes.userData}>
+                    <Grid container justify="center" direction='column'>
+                        <Grid item>
+                            <Typography> <strong>Deuda</strong> </Typography>
+                        </Grid>
+                        <Grid item>
+                            <Typography> { numeral(totalDebt).format('$0,000.0') } </Typography>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
         </Grid>
     )
 }
