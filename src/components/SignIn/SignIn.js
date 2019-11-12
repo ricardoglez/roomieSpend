@@ -381,7 +381,7 @@ const SignIn = () => {
                 </Grid>
                 <Grid container direction='column' justify='center'>
                     <Typography>
-                        ó si ya tienes una cuenta <Link to='/ingresar'> Ingresa </Link> a la palicación
+                        ó si ya tienes una cuenta <Link to='/ingresar'> Ingresa tus datos </Link>
                     </Typography>
                 </Grid> 
             </Paper>   
