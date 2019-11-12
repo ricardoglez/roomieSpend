@@ -6,7 +6,7 @@ admin.initializeApp();
 const db = admin.firestore();
 /**
  * This function updates the purchase after it has been craeted 
- * so it can be accessed with the id as a key 
+ * It initializes the values related to the debt and assignes the debt to selected users 
  */
 exports.addIdToPurchase = functions.firestore.document('purchase/{purchaseId}')
     .onCreate((snap, context) => {
@@ -15,6 +15,26 @@ exports.addIdToPurchase = functions.firestore.document('purchase/{purchaseId}')
                 console.log('Add to purchaseId', purchaseId);
                 console.log('newPurchase', newPurchase);
                 newPurchase['purchaseId'] = purchaseId;
+                const involvedUsersIds = Object.keys(newPurchase.involvedUsers);
+                
+                    involvedUsersIds.forEach( userId => {
+                        delete newPurchase.involvedUsers[userId].assignedPurchases;
+                        delete newPurchase.involvedUsers[userId].isSelected;
+
+                        newPurchase.involvedUsers[userId]['payed'] = false;
+                        newPurchase.involvedUsers[userId].debt = newPurchase.involvedUsers[userId].debt += newPurchase.totalCost / involvedUsersIds.length ;
+                        
+                        db.collection('users').doc( userId ).get()
+                            .then( snap => {
+                                userData = snap.data();
+                                userData.assignedPurchases[purchaseId] = newPurchase;
+                                return updateUserData(userId, userData);
+                            })
+                            .catch(error => {
+                            console.error(error)
+                            });
+                    });
+
                 db.collection('purchase').doc(purchaseId).set(newPurchase);
 });
 
@@ -36,30 +56,6 @@ const updateUserData = async ( userId , userData) => {
         })
     } )      
 }
-/**
- * When a purchase has been added, This functions updates the user involvedPurchases 
- * by adding a new purchase object to the purchase parent
- */
-exports.assignDebtToInvolvedUsers = functions.firestore.document('purchase/{purchaseId}')
-    .onCreate((snap, context) => {
-        console.log('Assign Debt to involved users');
-        const purchaseId = context.params.purchaseId;
-        const newPurchase = snap.data();
-        const involvedUsers = newPurchase.involvedUsers;
-        console.log(involvedUsers);
-
-        Object.keys(involvedUsers).forEach( userId => {
-            db.collection('users').doc( userId ).get()
-                .then( snap => {
-                    userData = snap.data();
-                    userData.assignedPurchases[purchaseId] = newPurchase;
-                    return updateUserData(userId, userData);
-                })
-                .catch(error => {
-                console.error(error)
-                });
-        });
-} );
 
 // exports.addToUsersCollection = functions.auth.user().onCreate((user,context) => {  
 //     console.log('Add to UsersCollection', user);
