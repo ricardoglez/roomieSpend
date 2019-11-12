@@ -15,7 +15,7 @@ const AppReducer = ( state, action ) => {
         case 'updatePurchasesList':
                 return { ...state, purchasesList: action.payload.updatedPurchases }
         case 'addPurchaseItem':
-            const newList =[...state.purchasesList, action.payload.purchaseItem ] 
+            const newList =[ action.payload.purchaseItem , ...state.purchasesList ] 
                 return { ...state, purchasesList: newList }
         default: 
             return { ...state }
