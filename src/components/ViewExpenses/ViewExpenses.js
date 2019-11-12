@@ -96,6 +96,7 @@ const InvolvedUsers = ({users, purchase}) => {
 }
 
 const PurchaseList = ({users, purchases}) => {
+    console.log( purchases );
     const classes = useStyles();
 
     return purchases.map( p => {
@@ -121,7 +122,7 @@ const PurchaseList = ({users, purchases}) => {
                         <Typography className={classes.numberData}>  {numeral(p.totalCost).format('$0,000.0')}</Typography>
                     </Grid>
                     <Grid item className={ classes.flexRow }>
-                        <Typography className={classes.labelData}>Dividdo:</Typography>
+                        <Typography className={classes.labelData}>Dividido:</Typography>
                         <Typography className={classes.numberData}> {numeral(p.totalCost/Object.keys(p.involvedUsers).length).format('$0,000.0')}</Typography>
                     </Grid>
                     <Grid item className={ classes.flexRow }>
@@ -145,14 +146,14 @@ const PurchaseList = ({users, purchases}) => {
 const ViewExpenses = () => {
     let [state, dispatch] = useContext(AppContext);
     let [isMounted, handleMounted]  = useState(false)
-    let [purchases, handleAvailablePurchases]  = useState(null)
     
     useEffect(()=> {
         API.fetchPurchases()
             .then( purchases => {
                 handleMounted(true);
                 if(purchases.success){
-                    handleAvailablePurchases(purchases.data);
+                    AppActions.updatePurchasesList(dispatch , purchases.data);
+      //              handleAvailablePurchases(purchases.data);
                 }
             })
             .catch(error => { 
@@ -170,11 +171,12 @@ const ViewExpenses = () => {
     if(!isMounted){
         return (
         <Grid 
-        container
-        direction="row"
-        justify="center"
-        alignItems="center" >
-            <LinearProgress/>
+          container
+          direction="row"
+          justify="center"
+          alignItems="center" 
+        >
+          <LinearProgress/>
         </Grid>)
     }
 
@@ -191,11 +193,11 @@ const ViewExpenses = () => {
             </Grid>
             <List className={classes.root}>
                 { 
-                    !purchases || purchases.length == 0 
+                    !state.purchasesList || state.purchasesList.length == 0 
                     ?
                     <Typography variant='body1' className={classes.content}> No hay ninguna compra</Typography>
                     :
-                    <PurchaseList purchases={purchases} />
+                    <PurchaseList purchases={ state.purchasesList } />
                 }
             </List>
         </React.Fragment>

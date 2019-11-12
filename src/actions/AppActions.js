@@ -14,12 +14,16 @@ const AppActions = {
     updateSpendingList: ( dispatch, spendingList ) => {
         dispatch( {type:'updateSpendingList', payload: { spendingList: spendingList } } );
     },
-    addSpendingItem: ( dispatch, spendingItem ) => {
-        dispatch( {type:'addSpendingItem', payload: { spendingItem: spendingItem } } );
+    updatePurchasesList: ( dispatch, updatedPurchases ) => {
+        dispatch( {type:'updatePurchasesList', payload: { updatedPurchases: updatedPurchases } } );
+    },
+    addPurchaseItem: ( dispatch, purchaseItem ) => {
+        dispatch( {type:'addPurchaseItem', payload: { purchaseItem: purchaseItem } } );
     },
     removeSpendingItem: ( dispatch, spendingItemId ) => {
         dispatch( {type:'removeSpendingItem', payload: { spendingItemID: spendingItemId } } );
-    },updateMounted: ( dispatch, status) => {
+    },
+    updateMounted: ( dispatch, status) => {
         dispatch( {type: 'updateMounted', payload:{ status } } );
     },
     redirectTo: (dispatch, redirect, pathToRedirect) => {

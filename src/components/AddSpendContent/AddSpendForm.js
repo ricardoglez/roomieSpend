@@ -83,7 +83,6 @@ const AddSpendForm = () => {
       API.fetchTeammates(state.userData.teamId)
       .then(response => {
         console.log(response);
-
         handleUsers(  
           response.data.map( u => {
             let modU = u;
@@ -96,13 +95,11 @@ const AddSpendForm = () => {
     },[]);
 
     useEffect( () => {
-      console.log('Make update');
       if( !users ){ return }
-        const v = users.filter(u => u.isSelected ) 
+        const v = users.filter( u => u.isSelected ) 
         console.log(v);
         console.log(v.map( v1 => v1.userId ));
-      
-    },[ values ])
+    },[ values ]);
 
       const handleChange = (event, name) => {
         console.log('handleSelect');
@@ -118,7 +115,7 @@ const AddSpendForm = () => {
         });
         oldVals.involvedUsers = obj;
 
-        handleUsers( 
+        handleUsers(
           users.map( u => {
             if( event.target.value.includes( u.userId )){
               u.isSelected = true;
@@ -151,7 +148,8 @@ const AddSpendForm = () => {
         API.postPurchase(values)
           .then(response => {
             console.log(response);
-            AppActions.handleModal(dispatch , false);
+            AppActions.addPurchaseItem( dispatch , values );
+            AppActions.handleModal( dispatch , false );
           })
           .catch(error => {
             console.error(error);
