@@ -105,14 +105,17 @@ const AvatarUserInfo = ( ) => {
     const [totalDebt , updateDebt] = useState( 0 );
 
     useEffect( () => {
-        const totD = 
-        updateDebt(  
-            Object.keys(state.userData.assignedPurchases).reduce( ( acc, curr ) => {
-                console.log( curr, acc, state.userData.assignedPurchases[curr] );
-                return acc += state.userData.assignedPurchases[curr].involvedUsers[state.userData.uid].debt 
+        const totD =  Object.keys(state.userData.debt).reduce( ( acc, curr ) => {
+                console.log( curr, acc, state.userData.debt[curr] );
+                if(state.userData.debt[curr].payed ){
+                    return acc
+                }
+                else {
+                    return acc += state.userData.debt[curr].debtQnty 
+                }
             } , 0)
-        );
-    });
+        updateDebt( totD );
+    }, [state.userData]);
 
     return ( 
         <Grid item xs={ 6 }>
