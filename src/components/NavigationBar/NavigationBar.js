@@ -5,19 +5,15 @@ import { AppBar, BottomNavigationAction, BottomNavigation } from '@material-ui/c
 import { AppContext } from '../../context/AppContext';
 import AppActions from '../../actions/AppActions';
 import API from '../../utils/API';
+import { appStyles } from '../../utils/styles';
 
 const useStyles= makeStyles({ 
-    root: { 
-        flexGrow: 1,
-        width: '100%',
-        position: 'fixed',
-        bottom: 0,
-    },
+    
 });
 
 const NavigationBar = () => {
     const [state, dispatch] = useContext(AppContext);
-    const classes = useStyles();
+    const classes = appStyles();
     const [ value, setValue ] = useState(0);
 
     const logout = () => {
@@ -42,7 +38,7 @@ const NavigationBar = () => {
                     setValue(newValue);
                 }}
                 showLabels
-                className={classes.root}
+                className={classes.bottomNav}
                 >
                     <BottomNavigationAction
                         label="Espera un momento"
@@ -58,7 +54,7 @@ const NavigationBar = () => {
                     setValue(newValue);
                 }}
                 showLabels
-                className={classes.root}
+                className={classes.bottomNav}
                 >
                     <BottomNavigationAction
                         component={Link}
@@ -86,7 +82,7 @@ const NavigationBar = () => {
                 setValue(newValue);
             }}
             showLabels
-            className={classes.root}
+            className={classes.bottomNav}
             >
                 <BottomNavigationAction
                     component={Link}

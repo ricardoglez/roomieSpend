@@ -18,66 +18,10 @@ import { AppContext } from '../../context/AppContext';
 import AppActions from '../../actions/AppActions';
 import AddSpendContent from '../AddSpendContent';
 
-const useStyles = makeStyles(theme => {
-    return {
-        root: {
-            minWidth: '95%',
-            color:'#fff',
-            marginTop: theme.spacing(2),
-          },
-          content:{
-              color:theme.palette.primary.main,
-              textAlign: 'center'
-          },
-          inline: {
-            display: 'inline',
-            color:'#fff'
-          },
-          listItem:{
-              borderRadius:theme.shape.borderRadius,
-              backgroundColor: theme.palette.primary.main,
-              marginTop:theme.spacing(1),
-              border: `1px solid #fff`,
-              display:'flex',
-              flexDirection:'column'
-          },
-          contentFlex:{
-              display:'flex',
-              flexGrow:1,
-              flexDirection:'row',
-              alignItems:'center',
-              width:'100%',
-          },
-          chipContainer:{
-            display:'flex',
-            width:'auto',
-            marginRight:theme.spacing(.5),
-          },
-          alignStart:{
-            alignItems: 'start',
-          },
-          numberData:{
-            marginLeft:theme.spacing(.5),
-            fontWeight: 'bolder',
-            textAlign: 'end',
-          },
-          labelData:{
-            textAlign:'end',
-            fontWeight:'light'
-          },
-          flexRow:{
-            display:'flex',
-            flexDirection:'row',
-            justifyContent:'end'
-          },
-          fab: {
-            margin: theme.spacing(1),
-          }
-    }
-});
+import { appStyles } from '../../utils/styles';
 
 const InvolvedUsers = ({users, purchase}) => {
-    const classes = useStyles();
+    const classes = appStyles();
 
     const usersName = Object.keys(users).map( usersKeys => {
         const user = users[usersKeys];
@@ -95,9 +39,9 @@ const InvolvedUsers = ({users, purchase}) => {
     )
 }
 
-const PurchaseList = ({users, purchases}) => {
+const PurchaseList = ({userData, users, purchases}) => {
     console.log( purchases );
-    const classes = useStyles();
+    const classes = appStyles();
 
     return purchases.map( p => {
         return (
@@ -133,12 +77,18 @@ const PurchaseList = ({users, purchases}) => {
             </div>
             
             <div className={classes.contentFlex}>
-                <Typography variant='caption'>Compartido con:</Typography>
-            </div>
-            <div className={classes.contentFlex}>
-                <InvolvedUsers users={ p.involvedUsers } purchase={p}/>
-            </div>
-            
+                <Grid container direction="column">
+                    <Grid item>
+                        <Typography variant='caption'>Compartido con:</Typography>
+                    </Grid>
+                    <Grid item>
+                        <InvolvedUsers users={ p.involvedUsers } purchase={p}/>
+                    </Grid>
+                </Grid>
+                <Grid container direction="column" justify="end" alignItems="center">
+                    <Typography variant="caption">Pagado:</Typography> { Object.keys(p.involvedUsers).includes( userData.uid ) ? 'Si' : 'No' }
+                </Grid>
+            </div>   
         </ListItem>)
     });
 }
@@ -162,7 +112,7 @@ const ViewExpenses = () => {
             })
     },[]);
 
-    const classes = useStyles();
+    const classes = appStyles();
 
     const handleAddSpend =  () => {
         AppActions.handleModal(dispatch, true, <AddSpendContent/>);
@@ -197,7 +147,7 @@ const ViewExpenses = () => {
                     ?
                     <Typography variant='body1' className={classes.content}> No hay ninguna compra</Typography>
                     :
-                    <PurchaseList purchases={ state.purchasesList } />
+                    <PurchaseList userData={state.userData} purchases={ state.purchasesList } />
                 }
             </List>
         </React.Fragment>

@@ -22,7 +22,7 @@ import AppActions from '../actions/AppActions';
 import API from '../utils/API';
 import numeral from 'numeral';
 
-
+import { appStyles } from '../utils/styles';
 const initialState = {
     isMounted     : false,
     showModal     : false,
@@ -35,46 +35,14 @@ const initialState = {
     purchasesList : []
 }
 
-const useStyles = makeStyles( theme => ({
-    root: {
-      flexGrow: 1,
-    },
-    modal: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      paper: {
-        backgroundColor: theme.palette.background.paper,
-        border: '2px solid #000',
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-      },
-      appBar: {
-        marginBottom: theme.spacing(2),
-        paddingTop: theme.spacing(1),
-        paddingBottom: theme.spacing(1)
-      },
-      userData:{
-        paddingLeft:theme.spacing(2),
-        paddingRight:theme.spacing(2),
-      },
-      userInfo:{
-          float:'right'
-      },
-      mainHeader:{
-          padding:theme.spacing(1)
-      }
-}));
-
 const AppContext =  createContext( initialState );
 
 const AppContextProvider = ({ children }) => {
-    const classes = useStyles();
+    const classes = appStyles();
     const [state, dispatch] = useReducer(AppReducers, initialState); 
     return (
         <AppContext.Provider value={ [state, dispatch] } >
-            <div className={ classes.root }>
+            <div className={ classes.appWrapper }>
                 <AppBar position='static' className={classes.appBar}>
                     <Grid container alignItems='center' justify='center' >
                             <Grid item xs={state.isAuth ? 6 : 12}>
@@ -86,11 +54,9 @@ const AppContextProvider = ({ children }) => {
                             <AvatarUserInfo/>
                     </Grid>
                 </AppBar>
-                <Container maxWidth='md'>
-                    <AppBody>
+                <AppBody>
                     { children }
-                    </AppBody>
-                </Container>
+                </AppBody>
                 <NavigationBar/>
             </div>
         </AppContext.Provider>
@@ -100,7 +66,7 @@ const AppContextProvider = ({ children }) => {
 const AvatarUserInfo = ( ) => {
     const [state, dispatch] = useContext(AppContext);
     if( !state.isAuth ){ return null }
-    const classes = useStyles()
+    const classes = appStyles()
 
     const [totalDebt , updateDebt] = useState( 0 );
 
@@ -139,8 +105,8 @@ const AvatarUserInfo = ( ) => {
 }
 
 const AppBody = ({ children, ...options }) => {
-    let [state , dispatch] = useContext(AppContext);
-    
+    const [state , dispatch] = useContext(AppContext);
+    const classes = appStyles();
     useEffect( () => {
         API.getUserData()
         .then( response => {
@@ -160,7 +126,7 @@ const AppBody = ({ children, ...options }) => {
         return <Redirect push to={{ pathname: state.pathToRedirect }}/>
     } else {
         return ( 
-            <Grid container justify='center' alignItems='center'>
+            <Grid className={classes.pageContent} container justify='center' alignItems='center'>
                 <TransitionModal content={ state.modalContent } />
                 { !state.isMounted || state.isSubmitting 
                 ? 
