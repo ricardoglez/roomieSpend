@@ -26,7 +26,7 @@ import API from '../../utils/API';
 import AppActions from '../../actions/AppActions';
 import { AppContext } from '../../context/AppContext';
 
-const purchaseObj = new purchaseModel([],'','',null,'','');
+const purchaseObj = new purchaseModel([],'','',null,'','','');
 const useStyles = makeStyles(theme => ({
     container: {
       display: 'flex',
@@ -103,7 +103,7 @@ const AddSpendForm = () => {
 
       const handleChange = (event, name) => {
         console.log('handleSelect');
-        setValues({ ...values, [name]: event.target.value });
+        setValues({ ...values, [name]: event.target.value, createdBy: state.userData.uid });
       };
 
       const handleInvolvedUsers = (event) => {
@@ -145,6 +145,7 @@ const AddSpendForm = () => {
       }
 
       const addPurchase = ( )=> {
+        
         API.postPurchase(values)
           .then(response => {
             console.log(response);
