@@ -12,8 +12,7 @@ exports.addIdToPurchase = functions.firestore.document('purchase/{purchaseId}')
     .onCreate((snap, context) => {
         const purchaseId = context.params.purchaseId;
         const newPurchase = snap.data();
-                console.log('Add to purchaseId', purchaseId);
-                console.log('newPurchase', newPurchase);
+        const currentUser = newPurchase.createdBy;
                 newPurchase['purchaseId'] = purchaseId;
                 const involvedUsersIds = Object.keys(newPurchase.involvedUsers);
                 
@@ -21,13 +20,24 @@ exports.addIdToPurchase = functions.firestore.document('purchase/{purchaseId}')
                         delete newPurchase.involvedUsers[userId].assignedPurchases;
                         delete newPurchase.involvedUsers[userId].isSelected;
 
-                        newPurchase.involvedUsers[userId]['payed'] = false;
-                        newPurchase.involvedUsers[userId].debt = newPurchase.involvedUsers[userId].debt += newPurchase.totalCost / involvedUsersIds.length ;
+                        newPurchase.involvedUsers[userId]['payed'] = currentUser === userId ? true : false;
+                        newPurchase.involvedUsers[userId].debt = newPurchase.totalCost / involvedUsersIds.length ;
                         
                         db.collection('users').doc( userId ).get()
-                            .then( snap => {
+                            .then((snap) => {
                                 userData = snap.data();
+                                const isPurchasedByUser = newPurchase.purchasedBy === userData.userId;
                                 userData.assignedPurchases[purchaseId] = newPurchase;
+                                if( userData.debt[newPurchase.purchasedBy] ){
+                                    userData.debt[newPurchase.purchasedBy].debtQnty += newPurchase.involvedUsers[userData.userId].debt; 
+                                    userData.debt[newPurchase.purchasedBy].payed = isPurchasedByUser;
+                                } else {
+                                    userData.debt[newPurchase.purchasedBy] = {
+                                        debtQnty: newPurchase.involvedUsers[userData.userId].debt,
+                                        debtTo: newPurchase.purchasedBy,
+                                        payed: isPurchasedByUser ,
+                                    }
+                                }
                                 return updateUserData(userId, userData);
                             })
                             .catch(error => {
