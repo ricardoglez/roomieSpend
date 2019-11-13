@@ -1,10 +1,9 @@
 import React, { useContext, useEffect } from 'react';
 import { AppContext } from '../../context/AppContext';
-import Login from '../Login';
+import MyDashboard from '../MyDashboard';
 
 const Home = (  ) => {
-    const [ state, dispatch ] = useContext(AppContext);
     
-    return <div>Home</div>      
+    return <MyDashboard/>      
 }
 export default Home;
