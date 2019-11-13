@@ -176,7 +176,7 @@ const API = {
                                     firebase.auth().createUserWithEmailAndPassword(data.email, data.password)
                                     .then( response => {
                                         const userObj = {
-                                            debt: 0 , 
+                                            debt: { } , 
                                             displayName:data.username, 
                                             userId: response.user.uid, 
                                             assignedPurchases: {},
@@ -209,8 +209,6 @@ const API = {
                                     })
                                 }
                             })
-
-            
         } );
     },
     logIn:( data ) => {
