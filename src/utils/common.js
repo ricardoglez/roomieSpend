@@ -12,12 +12,13 @@ export class userModel {
       } 
  };
 export class purchaseModel {
-      constructor( involvedUsers, title, description, date, purchasedBy, totalCost ){
+      constructor( involvedUsers, title, description, date, purchasedBy, createdBy, totalCost ){
           this.involvedUsers = involvedUsers;
           this.title = title;
           this.description = description;
           this.date = date;
           this.purchasedBy = purchasedBy;
+          this.createdBy = createdBy;
           this.totalCost = totalCost;
       } 
  };
