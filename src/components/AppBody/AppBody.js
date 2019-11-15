@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { Grid, LinearProgress } from '@material-ui/core';
+import { Grid, CircularProgress } from '@material-ui/core';
 import { Redirect } from 'react-router-dom';
 
 
@@ -35,8 +35,8 @@ const AppBody = ({ children, ...options }) => {
                 <TransitionModal content={ state.modalContent } />
                 { !state.isMounted || state.isSubmitting 
                 ? 
-                <Grid item xs={12}>
-                    <LinearProgress />
+                <Grid container justify="center" alignItems="center">
+                    <CircularProgress />
                 </Grid>
                 : 
                 children
