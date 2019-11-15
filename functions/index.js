@@ -8,25 +8,23 @@ const db = admin.firestore();
  * This function updates the purchase after it has been craeted 
  * It initializes the values related to the debt and assignes the debt to selected users 
  */
-exports.addIdToPurchase = functions.firestore.document('purchase/{purchaseId}')
+exports.initializePurchase = functions.firestore.document('purchase/{purchaseId}')
     .onCreate((snap, context) => {
         const purchaseId = context.params.purchaseId;
         const newPurchase = snap.data();
-        const currentUser = newPurchase.createdBy;
         newPurchase['purchaseId'] = purchaseId;
         const involvedUsersIds = Object.keys(newPurchase.involvedUsers);
-                
         involvedUsersIds.forEach( userId => {
             delete newPurchase.involvedUsers[userId].assignedPurchases;
             delete newPurchase.involvedUsers[userId].isSelected;
+            const thisUserPayed = userId === newPurchase.purchasedBy;
 
-            newPurchase.involvedUsers[userId]['payed'] = currentUser === userId ? true : false;
+            newPurchase.involvedUsers[userId]['payed'] = thisUserPayed ;
             newPurchase.involvedUsers[userId].debt = newPurchase.totalCost / involvedUsersIds.length ;
-            console.log( userId );
+
             db.collection('users').doc( userId ).get()
                 .then((snap) => {
                     userData = snap.data();
-                    console.log(userData);
                     const isPurchasedByUser = newPurchase.purchasedBy === userData.userId;
                     userData.assignedPurchases[purchaseId] = newPurchase;
                     if( userData.debt[newPurchase.purchasedBy] ){
@@ -44,7 +42,7 @@ exports.addIdToPurchase = functions.firestore.document('purchase/{purchaseId}')
                     return updateUserData(userId, userData);
                 })
                 .catch(error => {
-                console.error(error)
+                  console.error(error)
                 });
         });
 
@@ -62,19 +60,16 @@ exports.addIdToPurchase = functions.firestore.document('purchase/{purchaseId}')
 //         const purchaseId = context.params.purchaseId;
 //         const removedPurchase = snap.data();
 //         const involvedUsersIds = Object.keys(removedPurchase.involvedUsers);
-                
 //         involvedUsersIds.forEach( userId => {
 //             db.collection('users').doc( userId ).get()
 //                 .then((snap) => {
-//                     userData = snap.data();
-                    
+//                     userData = snap.data();      
 //                     return updateUserData(userId, userData);
 //                 })
 //                 .catch(error => {
 //                 console.error(error)
 //                 });
 //         });
-
 //         db.collection('purchase').doc(purchaseId).set(newPurchase);
 // });
 
