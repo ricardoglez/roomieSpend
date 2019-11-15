@@ -57,26 +57,26 @@ exports.addIdToPurchase = functions.firestore.document('purchase/{purchaseId}')
  * @param {*} userId 
  * @param {*} userData 
  */
-exports.removeRelatedPurchases = functions.firestore.document('purchase/{purchaseId}')
-    .onDelete((snap, context) => {
-        const purchaseId = context.params.purchaseId;
-        const removedPurchase = snap.data();
-        const involvedUsersIds = Object.keys(removedPurchase.involvedUsers);
+// exports.removeRelatedPurchases = functions.firestore.document('purchase/{purchaseId}')
+//     .onDelete((snap, context) => {
+//         const purchaseId = context.params.purchaseId;
+//         const removedPurchase = snap.data();
+//         const involvedUsersIds = Object.keys(removedPurchase.involvedUsers);
                 
-        involvedUsersIds.forEach( userId => {
-            db.collection('users').doc( userId ).get()
-                .then((snap) => {
-                    userData = snap.data();
+//         involvedUsersIds.forEach( userId => {
+//             db.collection('users').doc( userId ).get()
+//                 .then((snap) => {
+//                     userData = snap.data();
                     
-                    return updateUserData(userId, userData);
-                })
-                .catch(error => {
-                console.error(error)
-                });
-        });
+//                     return updateUserData(userId, userData);
+//                 })
+//                 .catch(error => {
+//                 console.error(error)
+//                 });
+//         });
 
-        db.collection('purchase').doc(purchaseId).set(newPurchase);
-});
+//         db.collection('purchase').doc(purchaseId).set(newPurchase);
+// });
 
 /**
  * This function updates the userData to a certain user based on a userId
