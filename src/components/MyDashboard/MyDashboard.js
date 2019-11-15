@@ -14,8 +14,8 @@ const MyDashboard = ( ) => {
     const classes = appStyles();
 
     return (
-          <Paper className={`${classes.paper} ${classes.contentFlex}`}>
-              <Grid container direction="column" xs={10} spacing={3}>
+        <Grid container direction="column" xs={10} spacing={3} xsOffset={1}>
+            <Paper className={`${classes.paper} ${classes.contentFlex} ${classes.dashboardWrapper}`}>
                 <Grid item >
                     <Typography variant="h6">
                         My Dashboard
@@ -30,8 +30,8 @@ const MyDashboard = ( ) => {
                         <Typography variant="subtitle1">Gastos</Typography>                            
                     </Grid>
                 </Grid>    
-              </Grid>
-          </Paper> 
+            </Paper> 
+        </Grid>
         )
 };
 
