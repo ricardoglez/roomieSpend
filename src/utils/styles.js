@@ -109,7 +109,7 @@ const appStyles = makeStyles( theme => {
             display:"flex",
         },
         payedQnty:{
-          color: theme.palette.error.light,
+          color: theme.palette.primary.light,
           textDecoration:'line-through'
         }
     }
