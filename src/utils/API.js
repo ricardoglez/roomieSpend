@@ -26,6 +26,7 @@ const API = {
         return user.updateProfile(updatedUser)
     },
     getUserData: () => {
+        console.log('Get Data')
         return new Promise( (res, rej) => {
             try{
                 firebase.auth()
@@ -215,7 +216,12 @@ const API = {
     },
     logIn:( data ) => {
         console.log('LogIn this', data);
-        return firebase.auth().signInWithEmailAndPassword(data.email, data.password)
+            return new Promise( (res, rej) => {
+                firebase.auth().signInWithEmailAndPassword(data.email, data.password)
+                .then( response => {
+                    res(API.getUserData())
+                })
+            }) 
     },
     logOut:( ) => {
         console.log('LogOut this');
