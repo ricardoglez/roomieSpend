@@ -26,7 +26,6 @@ const API = {
         return user.updateProfile(updatedUser)
     },
     getUserData: () => {
-        console.log('Get Data')
         return new Promise( (res, rej) => {
             try{
                 firebase.auth()
