@@ -1,11 +1,9 @@
 import React , { useState, useContext, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { 
-     Form,
-     FormGroup, 
+     Grid,
      Chip,
      FormControl, 
-     TextField, 
      Select, 
      MenuItem,
      Input,
@@ -13,8 +11,11 @@ import {
      InputLabel,
      ListItemText,
      Checkbox,
-     Button
-    } from '@material-ui/core';  
+     Button,
+     CircularProgress
+    } 
+from '@material-ui/core';  
+
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
@@ -25,21 +26,20 @@ import {purchaseModel} from '../../utils/common';
 import API from '../../utils/API';
 import AppActions from '../../actions/AppActions';
 import { AppContext } from '../../context/AppContext';
+import validations from '../../utils/validations';
+
+import useValidateAddForm from '../../hooks/useValidateAddForm';
 
 const purchaseObj = new purchaseModel([],'','',null,'','','');
 const useStyles = makeStyles(theme => ({
     container: {
       display: 'flex',
       flexGrow:1,
-      width: '90%',
+      width: '100%',
       flexDirection:'column'
     },
     button:{
       margin:theme.spacing(1),
-
-    },
-    formControl: {
-      
     },
     chip:{
       margin:2,
@@ -52,32 +52,39 @@ const useStyles = makeStyles(theme => ({
     }
   }));
 
-  const renderAvailableUsers  = ( users , involvedUsers ) => {
-    if(!users || users.length == 0){
-      return null
-    }
-    return users.map( u => {
-      return (
-        <MenuItem key={u.userId} value={u.userId}>
-          <ListItemText primary={u.displayName}/>
-          { involvedUsers 
-            ? 
-            <Checkbox checked={ u.isSelected }/>
-            :
-            null
-          }
-        </MenuItem>
-      )
-    } )
-  };
+const renderAvailableUsers  = ( users , involvedUsers ) => {
+  if(!users || users.length == 0){
+    return null
+  }
+  return users.map( u => {
+    return (
+      <MenuItem key={u.userId} value={u.userId}>
+        <ListItemText primary={u.displayName}/>
+        { involvedUsers 
+          ? 
+          <Checkbox checked={ u.isSelected }/>
+          :
+          null
+        }
+      </MenuItem>
+    )
+  } )
+};
 
 const AddSpendForm = () => {
     const [state, dispatch] = useContext(AppContext);
     const classes = useStyles();
     const [users, handleUsers ] = useState(null);
     const [isMounted, handleMounted] = useState(false);
-
     const [values, setValues] = useState( purchaseObj );
+    const [isReadyToSubmit, errorsForm ] = useValidateAddForm( values );
+
+    
+
+    useEffect( () => {
+      let isTitleValid = validations.stringRequired.validate( values.title );
+      console.log(isTitleValid);
+    },[ values.title ]);
 
     useEffect(()=>{
       API.fetchTeammates(state.userData.teamId)
@@ -97,12 +104,9 @@ const AddSpendForm = () => {
     useEffect( () => {
       if( !users ){ return }
         const v = users.filter( u => u.isSelected ) 
-        console.log(v);
-        console.log(v.map( v1 => v1.userId ));
     },[ values ]);
 
       const handleChange = (event, name) => {
-        console.log('handleSelect');
         setValues({ ...values, [name]: event.target.value, createdBy: state.userData.uid });
       };
 
@@ -137,7 +141,7 @@ const AddSpendForm = () => {
         console.log(u);
           return u.filter( user => user.isSelected)
           .map( user => {
-            console.log(user);
+            //console.log(user);
             return (
               <Chip key={user.userId} label={user.displayName} className={classes.chip} />
             )
@@ -157,13 +161,14 @@ const AddSpendForm = () => {
           })
       }
 
-      if(!isMounted){ return null }
+    if(!isMounted){ return <Grid container justify="center"> <CircularProgress/> </Grid> }
 
     return (
         <form className={classes.container} noValidate >
           <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="title">¿Que se compró?</InputLabel>
+            <InputLabel error={values.title != '' && errorsForm.hasOwnProperty('title')} htmlFor="title">¿Que se compró?</InputLabel>
             <Input
+              error={ values.title != '' && errorsForm.hasOwnProperty('title')}
               id="title"
               value={values.title}
               onChange={(e) => { handleChange(e, 'title') }}
@@ -171,8 +176,9 @@ const AddSpendForm = () => {
             />
           </FormControl>
           <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="purchasedBy">¿Quién hizó el pago?</InputLabel>
+            <InputLabel error={ values.purchasedBy.length != 0 && errorsForm.hasOwnProperty('purchasedBy')} htmlFor="purchasedBy">¿Quién hizó el pago?</InputLabel>
             <Select
+                error={ values.purchasedBy.length != 0 && errorsForm.hasOwnProperty('purchasedBy')}
                 value={values.purchasedBy}
                 onChange={(e) => {handleChange(e, 'purchasedBy')}}
                 input={<Input id='purchasedBy'/>}
@@ -181,10 +187,11 @@ const AddSpendForm = () => {
             </Select>
           </FormControl> 
           <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="totalCost">¿Cánto pagó?</InputLabel>
+            <InputLabel error={ values.totalCost != "" && errorsForm.hasOwnProperty('totalCost')} htmlFor="totalCost">¿Cánto pagó?</InputLabel>
             <Input
               id="totalCost"
               type='numeric'
+              error={ values.totalCost != "" && errorsForm.hasOwnProperty('totalCost')}
               pattern='[0-9]'
               value={values.totalCost}
               onChange={(e) => { handleChange(e, 'totalCost') }}
@@ -193,11 +200,12 @@ const AddSpendForm = () => {
             />
           </FormControl> 
           <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="involvedUsers">¿Quiénes comparten la compra?</InputLabel>
+            <InputLabel error={ values.involvedUsers.length != 0 && errorsForm.hasOwnProperty('involvedUsers')} htmlFor="involvedUsers">¿Quiénes comparten la compra?</InputLabel>
             <Select
                 labelId='involvedUsersLabel'
                 id='involvedUsers'
                 multiple
+                error={ values.involvedUsers.length != 0 && errorsForm.hasOwnProperty('involvedUsers')}
                 renderValue={ renderUsersSelected }
                 value={ !users ? [] : users.filter( u => u.isSelected).map( u => u.userId )  }
                 onChange={(e) => { handleInvolvedUsers(e, 'involvedUsers')}}
@@ -207,9 +215,10 @@ const AddSpendForm = () => {
             </Select>
           </FormControl> 
           <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="description">Agrega una descripción</InputLabel>
+            <InputLabel error={ values.description != "" && errorsForm.hasOwnProperty('description')} htmlFor="description">Agrega una descripción</InputLabel>
             <Input
               id="title"
+              error={ values.description != "" && errorsForm.hasOwnProperty('description')}
               value={values.description}
               max={100}
               onChange={(e) => { handleChange(e, 'description') }}
@@ -221,6 +230,7 @@ const AddSpendForm = () => {
               <KeyboardDatePicker
                 margin="normal"
                 id="date-picker-dialog"
+                error={ values.date != null && errorsForm.hasOwnProperty('date')}
                 label="¿Cuándo se compró?"
                 value={values.date}
                 onChange={handleDate}
@@ -233,6 +243,7 @@ const AddSpendForm = () => {
           <Button 
             onClick={addPurchase} 
             variant="contained" 
+            disabled={ !isReadyToSubmit }
             color="primary" 
             className={classes.button} >
               Guardar

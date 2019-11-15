@@ -37,10 +37,12 @@ const AddSpendContent = ( { availableUsers } ) => {
     let [state, dispatch] = useContext(AppContext);
     const classes = useStyles();
     return (
-        <Paper className={classes.paper}>
+        <Paper className={classes.paper} >
+          <Grid container direction="column" alignItems="center" justify="center">
             <Typography variant='h6' gutterBottom >Agregar compra</Typography>
             <Typography variant='subtitle2' gutterBottom >Ingresa la información referente a la compra</Typography>
             <AddSpendForm availableUsers={availableUsers}/>
+          </Grid>
         </Paper>
     )
 }
