@@ -17,7 +17,7 @@ import API from '../../utils/API';
 import { AppContext } from '../../context/AppContext';
 import AppActions from '../../actions/AppActions';
 import AddSpendContent from '../AddSpendContent';
-
+import { format, compareAsc } from 'date-fns'
 import { appStyles } from '../../utils/styles';
 
 const InvolvedUsers = ({users, purchase}) => {
@@ -67,11 +67,11 @@ const PurchaseList = ({userData, users, purchases}) => {
                     </Grid>
                     <Grid item className={ classes.flexRow }>
                         <Typography className={classes.labelData}>Dividido:</Typography>
-                        <Typography className={classes.numberData}> {numeral(p.totalCost/Object.keys(p.involvedUsers).length).format('$0,000.0')}</Typography>
+                        <Typography className={`${classes.numberData}  ${!p.involvedUsers[userData.uid].payed ? classes.payedQnty : '' } `}> {numeral(p.totalCost/Object.keys(p.involvedUsers).length).format('$0,000.0')}</Typography>
                     </Grid>
                     <Grid item className={ classes.flexRow }>
                         <Typography className={classes.labelData}>Fecha: </Typography>
-                        <Typography className={classes.numberData}> 05/10/2020 </Typography>
+                        <Typography className={classes.numberData}> { format( new Date(p.date.seconds*1000) , "MM/dd/yyyy" ) }  </Typography>
                     </Grid>
                 </Grid>
             </div>
@@ -86,7 +86,9 @@ const PurchaseList = ({userData, users, purchases}) => {
                     </Grid>
                 </Grid>
                 <Grid container direction="column" justify="end" alignItems="center">
-                    <Typography variant="caption">Pagado:</Typography> { Object.keys(p.involvedUsers).includes( userData.uid ) ? 'Si' : 'No' }
+                    <Typography variant="caption">Pagado:</Typography> { 
+                        p.involvedUsers[userData.uid].payed ? 'Si' : 'No'
+                     }
                 </Grid>
             </div>   
         </ListItem>)
