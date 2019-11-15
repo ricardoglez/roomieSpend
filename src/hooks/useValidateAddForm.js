@@ -24,7 +24,7 @@ const useValidateAddForm = ( values ) => {
         const involvedUsersVal = handleError( validations.objectRequired.validate( values.involvedUsers ), 'involvedUsers');
         const totalCostVal = handleError( validations.numberRequired.validate( values.totalCost ), 'totalCost' );
         const descriptionVal = handleError( validations.stringRequired.validate( values.description ), 'description');
-        const dateVal = handleError( validations.dateRequired.validate( values.date ), 'date' );
+        const dateVal = handleError( validations.dateRequired.validate( values.date , { language: 'La fecha debe ser menor o igual al dia de hoy.'}), 'date' );
         
         if( Object.keys(errorsForm).length == 0 ){
             setValidForm(true);
@@ -32,6 +32,8 @@ const useValidateAddForm = ( values ) => {
         else {
             setValidForm(false);
         }
+        
+        console.log( errorsForm );
     } );
 
 
