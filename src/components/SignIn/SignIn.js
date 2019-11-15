@@ -19,8 +19,7 @@ import {
     Typography,
     Button
 } from '@material-ui/core';
-import Joi from '@hapi/joi';
-
+import validations from '../../utils/validations';
 import API from '../../utils/API';
 import { emailError, passwordError } from '../../utils/common';  
 import { userModel } from '../../utils/common';
@@ -207,8 +206,7 @@ const SignIn = () => {
     //Effect to validate username
     useEffect(() => {
         if( username === null ){ return}
-        let usernameSchema = Joi.string().min(4).required();
-        let validUsername = usernameSchema.validate(username);
+        let validUsername = validations.stringRequired.validate(username);
         if( validUsername.hasOwnProperty('error') ){
             handleUsernameValidation(false);
             handleUsernameErrorMessage('El apodo debe de tener un mínimo de 4 carácteres');
@@ -225,8 +223,8 @@ const SignIn = () => {
     //Effect to validate email
     useEffect(() => {
         if( email === null ){ return}
-        let emailSchema = Joi.string().email().required();
-        let validEmail = emailSchema.validate(email);
+        debugger
+        let validEmail = validations.emailRequired.validate(email);
         if( validEmail.hasOwnProperty('error') ){
             handleEmailValidation(false);
             handleEmailErrorMessage(emailError);
@@ -238,8 +236,7 @@ const SignIn = () => {
     //Effect to validate password
     useEffect(() => {
         if(password === null){ return }
-        let passwordSchema = Joi.string().alphanum().min(6).required();
-        let validPass = passwordSchema.validate(password);
+        let validPass = validations.passwordRequired.validate(password);
         if(validPass.hasOwnProperty('error') ){
             handlePasswordValidation(false);
             handlePasswordErrorMessage(passwordError);

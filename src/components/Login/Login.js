@@ -15,6 +15,7 @@ import {
     Button
 } from '@material-ui/core';
 import Joi from '@hapi/joi';
+import validations from '../../utils/validations';
 import API from '../../utils/API';
 import { emailError, passwordError } from '../../utils/common';  
 import AppActions from '../../actions/AppActions';
@@ -70,8 +71,7 @@ const Login = () => {
         .then( response => {
             console.log(response);
             handleSubmitting(false);
-            const userObj = new userModel( response.user.uid, response.user.displayName, response.user.metadata.lastSignInTime, response.user.refreshToken );
-            AppActions.updateUserData(dispatch, userObj);
+            AppActions.updateUserData(dispatch, response.data);
             AppActions.updateAuthState(dispatch, true);
             AppActions.redirectTo(dispatch, true, '/viewExpenses');
         })
@@ -108,8 +108,7 @@ const Login = () => {
     //Effect to validate email
     useEffect(() => {
         if( email === null ){ return}
-        let emailSchema = Joi.string().email().required();
-        let validEmail = emailSchema.validate(email);
+        let validEmail = validations.emailRequired.validate(email);
         if( validEmail.hasOwnProperty('error') ){
             handleEmailValidation(false);
             handleEmailErrorMessage(emailError);
@@ -121,8 +120,7 @@ const Login = () => {
     //Effect to validate password
     useEffect(() => {
         if(password === null){ return }
-        let passwordSchema = Joi.string().alphanum().min(6).required();
-        let validPass = passwordSchema.validate(password);
+        let validPass = validations.passwordRequired.validate(password);
         if(validPass.hasOwnProperty('error') ){
             handlePasswordValidation(false);
             handlePasswordErrorMessage(passwordError);

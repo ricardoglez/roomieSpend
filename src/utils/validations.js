@@ -4,7 +4,7 @@ const today= new Date();
 const tomorrow = new Date();
 const validations = {
     stringRequired: Joi.string()
-        .alphanum()
+        .empty("")
         .min(3)
         .required(),
     arrayRequired: Joi.array()
@@ -15,10 +15,20 @@ const validations = {
         .required(),
     numberRequired: Joi.number()
         .min(1)
+        .empty("")
         .positive()
         .required(),
         //TODO validate the current day as a max date 
     dateRequired: Joi.date()
+        .required()
+        .empty(null)
+        .max( new Date() ),
+    emailRequired: Joi.string()
+        .email({tlds:false})
+        .empty(""),
+    passwordRequired: Joi.string()
+        .alphanum()
+        .min(6)
         .required()
 };
 
