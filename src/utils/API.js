@@ -34,19 +34,21 @@ const API = {
                         firestore.collection('users').doc(user.uid).get()
                         .then( userData => {
                             const uD = userData.data()
-                            console.log(userData.data);
-                            console.log(uD);
                             const userFormatted = {
-                                uid: user.uid,
-                                displayName: user.displayName,
-                                teamId: uD.teamId,
-                                debt: uD.debt,
-                                assignedPurchases: uD.assignedPurchases,
-                                lastLogin: user.metadata.lastSignInTime,
-                                refreshToken: user.refreshToken,
+                                uid                 : user.uid,
+                                displayName         : user.displayName,
+                                teamId              : uD.teamId,
+                                debt                : uD.debt,
+                                assignedPurchases   : uD.assignedPurchases,
+                                lastLogin           : user.metadata.lastSignInTime,
+                                refreshToken        : user.refreshToken,
                             };
                             res( { success: true , data:userFormatted });
-                        })                        
+                        })
+                        .catch( error => {
+                            console.error( 'Error while authenticatiing user', user, error );
+                            rej({success: false , error: error });
+                        });
                     }
                     else {
                         console.error('this User isnt auth', user);
