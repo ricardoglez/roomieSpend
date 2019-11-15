@@ -67,11 +67,11 @@ const PurchaseList = ({userData, users, purchases}) => {
                     </Grid>
                     <Grid item className={ classes.flexRow }>
                         <Typography className={classes.labelData}>Dividido:</Typography>
-                        <Typography className={`${classes.numberData}  ${!p.involvedUsers[userData.uid].payed ? classes.payedQnty : '' } `}> {numeral(p.totalCost/Object.keys(p.involvedUsers).length).format('$0,000.0')}</Typography>
+                        <Typography className={`${classes.numberData}  ${p.involvedUsers[userData.uid].payed ? classes.payedQnty : '' } `}> {numeral(p.totalCost/Object.keys(p.involvedUsers).length).format('$0,000.0')}</Typography>
                     </Grid>
                     <Grid item className={ classes.flexRow }>
                         <Typography className={classes.labelData}>Fecha: </Typography>
-                        <Typography className={classes.numberData}> { format( new Date(p.date.seconds*1000) , "MM/dd/yyyy" ) }  </Typography>
+                        <Typography className={classes.numberData}> { p.date.hasOwnProperty("seconds") ? format( new Date(p.date.seconds*1000) , "MM/dd/yyyy" ) : format( p.date , "MM/dd/yyyy" ) }  </Typography>
                     </Grid>
                 </Grid>
             </div>
@@ -133,7 +133,7 @@ const ViewExpenses = () => {
     }
 
     return (
-        <React.Fragment>
+        <Grid container justify="center" alignItemS="center">
             <Grid 
             container
             direction="row"
@@ -143,16 +143,18 @@ const ViewExpenses = () => {
                     Agregar compra
                 </Fab>
             </Grid>
-            <List className={classes.root}>
-                { 
-                    !state.purchasesList || state.purchasesList.length == 0 
-                    ?
-                    <Typography variant='body1' className={classes.content}> No hay ninguna compra</Typography>
-                    :
-                    <PurchaseList userData={state.userData} purchases={ state.purchasesList } />
-                }
-            </List>
-        </React.Fragment>
+            <Grid item xs={12} md={10}>
+                <List className={classes.root}>
+                    { 
+                        !state.purchasesList || state.purchasesList.length == 0 
+                        ?
+                        <Typography variant='body1' className={classes.content}> No hay ninguna compra</Typography>
+                        :
+                        <PurchaseList userData={state.userData} purchases={ state.purchasesList } />
+                    }
+                </List>
+            </Grid>
+        </Grid>
     )
 };
 
