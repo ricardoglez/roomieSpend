@@ -1,13 +1,20 @@
 import {makeStyles} from '@material-ui/core/styles';
 
 const appStyles = makeStyles( theme => {
+  console.log(theme.palette)
     return {
         appWrapper:{
-            height:'100%',
-            justifyContent:'center',
-            alignItems:'center',
-            display:"flex",
-            flexDirection:"column"
+          height:'100%',
+          justifyContent:'center',
+          alignItems:'center',
+          display:"flex",
+          flexDirection:"column"
+        },
+        dashboardWrapper:{
+          maxWidth:'80%',
+          justifyContent:'center',
+          alignItems: 'center',
+          direction: 'column'
         },
         pageContent:{
             flex: '1 0 auto',
@@ -101,6 +108,10 @@ const appStyles = makeStyles( theme => {
             bottom: 0,
             display:"flex",
         },
+        payedQnty:{
+          color: theme.palette.error.light,
+          textDecoration:'line-through'
+        }
     }
 });
 
