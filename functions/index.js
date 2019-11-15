@@ -13,39 +13,69 @@ exports.addIdToPurchase = functions.firestore.document('purchase/{purchaseId}')
         const purchaseId = context.params.purchaseId;
         const newPurchase = snap.data();
         const currentUser = newPurchase.createdBy;
-                newPurchase['purchaseId'] = purchaseId;
-                const involvedUsersIds = Object.keys(newPurchase.involvedUsers);
+        newPurchase['purchaseId'] = purchaseId;
+        const involvedUsersIds = Object.keys(newPurchase.involvedUsers);
                 
-                    involvedUsersIds.forEach( userId => {
-                        delete newPurchase.involvedUsers[userId].assignedPurchases;
-                        delete newPurchase.involvedUsers[userId].isSelected;
+        involvedUsersIds.forEach( userId => {
+            delete newPurchase.involvedUsers[userId].assignedPurchases;
+            delete newPurchase.involvedUsers[userId].isSelected;
 
-                        newPurchase.involvedUsers[userId]['payed'] = currentUser === userId ? true : false;
-                        newPurchase.involvedUsers[userId].debt = newPurchase.totalCost / involvedUsersIds.length ;
-                        
-                        db.collection('users').doc( userId ).get()
-                            .then((snap) => {
-                                userData = snap.data();
-                                const isPurchasedByUser = newPurchase.purchasedBy === userData.userId;
-                                userData.assignedPurchases[purchaseId] = newPurchase;
-                                if( userData.debt[newPurchase.purchasedBy] ){
-                                    userData.debt[newPurchase.purchasedBy].debtQnty += newPurchase.involvedUsers[userData.userId].debt; 
-                                    userData.debt[newPurchase.purchasedBy].payed = isPurchasedByUser;
-                                } else {
-                                    userData.debt[newPurchase.purchasedBy] = {
-                                        debtQnty: newPurchase.involvedUsers[userData.userId].debt,
-                                        debtTo: newPurchase.purchasedBy,
-                                        payed: isPurchasedByUser ,
-                                    }
-                                }
-                                return updateUserData(userId, userData);
-                            })
-                            .catch(error => {
-                            console.error(error)
-                            });
-                    });
+            newPurchase.involvedUsers[userId]['payed'] = currentUser === userId ? true : false;
+            newPurchase.involvedUsers[userId].debt = newPurchase.totalCost / involvedUsersIds.length ;
+            console.log( userId );
+            db.collection('users').doc( userId ).get()
+                .then((snap) => {
+                    userData = snap.data();
+                    console.log(userData);
+                    const isPurchasedByUser = newPurchase.purchasedBy === userData.userId;
+                    userData.assignedPurchases[purchaseId] = newPurchase;
+                    if( userData.debt[newPurchase.purchasedBy] ){
+                        console.log('Update debt of', newPurchase.purchasedBy);
+                        userData.debt[newPurchase.purchasedBy].debtQnty += newPurchase.involvedUsers[userData.userId].debt; 
+                        userData.debt[newPurchase.purchasedBy].payed = isPurchasedByUser;
+                    } else {
+                        console.log('New debt of', newPurchase.purchasedBy);
+                        userData.debt[newPurchase.purchasedBy] = {
+                            debtQnty: newPurchase.involvedUsers[userData.userId].debt,
+                            debtTo: newPurchase.purchasedBy,
+                            payed: isPurchasedByUser ,
+                        }
+                    }
+                    return updateUserData(userId, userData);
+                })
+                .catch(error => {
+                console.error(error)
+                });
+        });
 
-                db.collection('purchase').doc(purchaseId).set(newPurchase);
+        db.collection('purchase').doc(purchaseId).set(newPurchase);
+});
+
+/**
+ * Create a function to run after a purchase object ahs been deleted
+ * So it will delete the assigned purchases of the user involved and the debt related to the users
+ * @param {*} userId 
+ * @param {*} userData 
+ */
+exports.removeRelatedPurchases = functions.firestore.document('purchase/{purchaseId}')
+    .onDelete((snap, context) => {
+        const purchaseId = context.params.purchaseId;
+        const removedPurchase = snap.data();
+        const involvedUsersIds = Object.keys(removedPurchase.involvedUsers);
+                
+        involvedUsersIds.forEach( userId => {
+            db.collection('users').doc( userId ).get()
+                .then((snap) => {
+                    userData = snap.data();
+                    
+                    return updateUserData(userId, userData);
+                })
+                .catch(error => {
+                console.error(error)
+                });
+        });
+
+        db.collection('purchase').doc(purchaseId).set(newPurchase);
 });
 
 /**
