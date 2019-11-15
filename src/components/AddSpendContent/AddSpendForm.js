@@ -12,7 +12,8 @@ import {
      ListItemText,
      Checkbox,
      Button,
-     CircularProgress
+     CircularProgress,
+     FormHelperText
     } 
 from '@material-ui/core';  
 
@@ -30,7 +31,7 @@ import validations from '../../utils/validations';
 
 import useValidateAddForm from '../../hooks/useValidateAddForm';
 
-const purchaseObj = new purchaseModel([],'','',null,'','','');
+const purchaseObj = new purchaseModel( null, null, null, null, null, null, null );
 const useStyles = makeStyles(theme => ({
     container: {
       display: 'flex',
@@ -72,20 +73,14 @@ const renderAvailableUsers  = ( users , involvedUsers ) => {
 };
 
 const AddSpendForm = () => {
-    const [state, dispatch] = useContext(AppContext);
+    const [ state, dispatch ] = useContext(AppContext);
     const classes = useStyles();
-    const [users, handleUsers ] = useState(null);
-    const [isMounted, handleMounted] = useState(false);
-    const [values, setValues] = useState( purchaseObj );
-    const [isReadyToSubmit, errorsForm ] = useValidateAddForm( values );
+    const [ users, handleUsers ] = useState(null);
+    const [ isMounted, handleMounted ] = useState(false);
+    const [ values, setValues ] = useState( purchaseObj );
+    const [ isReadyToSubmit, errorsForm ] = useValidateAddForm( values );
 
-    
-
-    useEffect( () => {
-      let isTitleValid = validations.stringRequired.validate( values.title );
-      console.log(isTitleValid);
-    },[ values.title ]);
-
+    console.log(errorsForm);
     useEffect(()=>{
       API.fetchTeammates(state.userData.teamId)
       .then(response => {
@@ -149,7 +144,6 @@ const AddSpendForm = () => {
       }
 
       const addPurchase = ( )=> {
-        
         API.postPurchase(values)
           .then(response => {
             console.log(response);
@@ -166,9 +160,9 @@ const AddSpendForm = () => {
     return (
         <form className={classes.container} noValidate >
           <FormControl className={classes.formControl}>
-            <InputLabel error={values.title != '' && errorsForm.hasOwnProperty('title')} htmlFor="title">¿Que se compró?</InputLabel>
+            <InputLabel error={values.title!= null && errorsForm.hasOwnProperty('title')} htmlFor="title">¿Que se compró?</InputLabel>
             <Input
-              error={ values.title != '' && errorsForm.hasOwnProperty('title')}
+              error={ values.title!= null && errorsForm.hasOwnProperty('title')}
               id="title"
               value={values.title}
               onChange={(e) => { handleChange(e, 'title') }}
@@ -176,9 +170,9 @@ const AddSpendForm = () => {
             />
           </FormControl>
           <FormControl className={classes.formControl}>
-            <InputLabel error={ values.purchasedBy.length != 0 && errorsForm.hasOwnProperty('purchasedBy')} htmlFor="purchasedBy">¿Quién hizó el pago?</InputLabel>
+            <InputLabel error={ values.purchasedBy != null && errorsForm.hasOwnProperty('purchasedBy')} htmlFor="purchasedBy">¿Quién hizó el pago?</InputLabel>
             <Select
-                error={ values.purchasedBy.length != 0 && errorsForm.hasOwnProperty('purchasedBy')}
+                error={ values.purchasedBy != null && errorsForm.hasOwnProperty('purchasedBy')}
                 value={values.purchasedBy}
                 onChange={(e) => {handleChange(e, 'purchasedBy')}}
                 input={<Input id='purchasedBy'/>}
@@ -187,11 +181,11 @@ const AddSpendForm = () => {
             </Select>
           </FormControl> 
           <FormControl className={classes.formControl}>
-            <InputLabel error={ values.totalCost != "" && errorsForm.hasOwnProperty('totalCost')} htmlFor="totalCost">¿Cánto pagó?</InputLabel>
+            <InputLabel error={ values.totalCost!= null && errorsForm.hasOwnProperty('totalCost')} htmlFor="totalCost">¿Cánto pagó?</InputLabel>
             <Input
               id="totalCost"
               type='numeric'
-              error={ values.totalCost != "" && errorsForm.hasOwnProperty('totalCost')}
+              error={ values.totalCost!= null && errorsForm.hasOwnProperty('totalCost')}
               pattern='[0-9]'
               value={values.totalCost}
               onChange={(e) => { handleChange(e, 'totalCost') }}
@@ -200,12 +194,12 @@ const AddSpendForm = () => {
             />
           </FormControl> 
           <FormControl className={classes.formControl}>
-            <InputLabel error={ values.involvedUsers.length != 0 && errorsForm.hasOwnProperty('involvedUsers')} htmlFor="involvedUsers">¿Quiénes comparten la compra?</InputLabel>
+            <InputLabel error={ values.involvedUsers != null && errorsForm.hasOwnProperty('involvedUsers')} htmlFor="involvedUsers">¿Quiénes comparten la compra?</InputLabel>
             <Select
                 labelId='involvedUsersLabel'
                 id='involvedUsers'
                 multiple
-                error={ values.involvedUsers.length != 0 && errorsForm.hasOwnProperty('involvedUsers')}
+                error={ values.involvedUsers != null && errorsForm.hasOwnProperty('involvedUsers')}
                 renderValue={ renderUsersSelected }
                 value={ !users ? [] : users.filter( u => u.isSelected).map( u => u.userId )  }
                 onChange={(e) => { handleInvolvedUsers(e, 'involvedUsers')}}
@@ -213,12 +207,12 @@ const AddSpendForm = () => {
               >
                 { renderAvailableUsers( users, values.involvedUsers ) }
             </Select>
-          </FormControl> 
+          </FormControl>
           <FormControl className={classes.formControl}>
-            <InputLabel error={ values.description != "" && errorsForm.hasOwnProperty('description')} htmlFor="description">Agrega una descripción</InputLabel>
+            <InputLabel error={ values.description!= null && errorsForm.hasOwnProperty('description')} htmlFor="description">Agrega una descripción</InputLabel>
             <Input
               id="title"
-              error={ values.description != "" && errorsForm.hasOwnProperty('description')}
+              error={ values.description!= null && errorsForm.hasOwnProperty('description')}
               value={values.description}
               max={100}
               onChange={(e) => { handleChange(e, 'description') }}
@@ -230,7 +224,7 @@ const AddSpendForm = () => {
               <KeyboardDatePicker
                 margin="normal"
                 id="date-picker-dialog"
-                error={ values.date != null && errorsForm.hasOwnProperty('date')}
+                error={  errorsForm.hasOwnProperty('date') && errorsForm._original != null}
                 label="¿Cuándo se compró?"
                 value={values.date}
                 onChange={handleDate}
@@ -238,6 +232,7 @@ const AddSpendForm = () => {
                   'aria-label': 'change date',
                 }}
               />
+            <FormHelperText>{ errorsForm.hasOwnProperty('date') && errorsForm._original != null ? 'La fecha debe ser menor o igual al día acutal' : '' }</FormHelperText>
             </FormControl>
           </MuiPickersUtilsProvider>
           <Button 
@@ -245,7 +240,8 @@ const AddSpendForm = () => {
             variant="contained" 
             disabled={ !isReadyToSubmit }
             color="primary" 
-            className={classes.button} >
+            className={classes.button} 
+          >
               Guardar
             </Button>
         </form>
