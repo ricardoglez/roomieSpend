@@ -148,6 +148,7 @@ const AddSpendForm = () => {
           .then(response => {
             console.log(response);
             AppActions.addPurchaseItem( dispatch , values );
+            AppActions.updateUserDebt( dispatch , values, response._key.path.segments[1], state.userData );
             AppActions.handleModal( dispatch , false );
           })
           .catch(error => {
